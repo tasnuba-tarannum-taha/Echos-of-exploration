@@ -1,0 +1,22 @@
+{
+  "mission": "SPHEREx",
+  "dataset": "IRSA Near-Infrared Spectral Survey",
+  "wavelength_range_microns": [0.75, 5.0],
+  "sources_catalog_count": 142050,
+  "sample_spectra": [
+    {
+      "source_id": "SPH-2026-00129",
+      "ra": 149.936,
+      "dec": 69.658,
+      "redshift_z": 0.042,
+      "spectral_bands": {
+        "0.75um": 14.2,
+        "1.15um": 28.5,
+        "2.31um": 45.1,
+        "3.50um": 62.8,
+        "4.75um": 51.3
+      },
+      "classification": "Starburst Galaxy / Water Ice Signature Confirmed"
+    }
+  ]
+}

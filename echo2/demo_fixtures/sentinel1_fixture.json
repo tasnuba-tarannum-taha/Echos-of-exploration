@@ -1,0 +1,12 @@
+{
+  "satellite": "Sentinel-1 SAR (ASF Search)",
+  "mode": "IW",
+  "polarization": "VV+VH",
+  "scene_id": "S1A_IW_GRDH_1SDV_20260920T142200",
+  "coverage_area_sq_km": 25000,
+  "flood_detection": {
+    "inundated_pixels": 84500,
+    "estimated_flood_area_hectares": 3400,
+    "confidence": "High (Backscatter dB drop < -15dB)"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "repository": "NASA Open Science Data Repository (OSDR) / GeneLab",
+  "dataset_id": "OSD-725",
+  "mission": "Rodent Research-1 (RR1) / International Space Station",
+  "sample_organism": "Mus musculus",
+  "tissue_type": "Liver & Skeletal Muscle",
+  "differentially_expressed_genes": 1420,
+  "top_pathways": [
+    { "pathway": "Oxidative Phosphorylation", "p_value": 0.00012, "regulation": "Downregulated" },
+    { "pathway": "Cytoskeletal Remodeling", "p_value": 0.00085, "regulation": "Upregulated" },
+    { "pathway": "Circadian Rhythm Regulation", "p_value": 0.00140, "regulation": "Altered" }
+  ]
+}
