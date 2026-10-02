@@ -21,6 +21,14 @@ An AI-powered educational platform that brings NASA's abandoned hardware on the 
 
 ---
 
+## 🌐 Live Demo
+
+### Google AI Studio Project
+
+https://ai.studio/apps/7d565c40-aad6-471c-a0f7-5e0cacc180c1
+
+---
+
 ## 🎯 High-Level Summary
 
 Echoes of Exploration is an interactive educational platform developed for the NASA Space Apps Challenge 2026. Inspired by the "Abandoned but Not Forgotten" challenge, the platform helps users discover the stories of spacecraft, landers, rovers, and scientific instruments that remain on the Moon, Mars, and beyond.
