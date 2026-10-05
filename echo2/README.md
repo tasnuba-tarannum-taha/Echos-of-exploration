@@ -25,7 +25,7 @@ An AI-powered educational platform that brings NASA's abandoned hardware on the 
 
 ### Google AI Studio Project
 
-https://ai.studio/apps/7d565c40-aad6-471c-a0f7-5e0cacc180c1
+https://ai.studio/apps/fb12cd50-37b3-4ca5-a2b2-27e322f856f8
 
 ---
 
