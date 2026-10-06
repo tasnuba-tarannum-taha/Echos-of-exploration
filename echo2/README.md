@@ -1,7 +1,7 @@
 # NASA Mission Control & Space Apps Explorer (Offline-First Architecture)
 
 > **NASA Space Apps Hackathon 2026 Submission**  
-> Elite Lead Space-Tech Software Engineer & Architecture Implementation.
+> Explore the machines humans left behind in space.
 
 ---
 
@@ -9,7 +9,7 @@
 
 This system is built from the ground up to satisfy rigorous NASA Space Apps judging criteria:
 1. **NASA Data as the Sole Foundation:** All datasets, telemetry, and visualization features derive directly from official NASA APIs and repositories.
-2. **Deterministic Science & Computation:** All orbital mechanics, radar signal processing, spectral catalog analytics, and spatial math are computed deterministically in Python (`src/compute/`). LLMs are strictly restricted to summarizing pre-computed results (`src/agents/`).
+2. **Deterministic Science & Computation:** All orbital mechanics, radar signal processing, spectral catalog analytics, and spatial math are computed deterministically in TypeScript (`src/compute/`). LLMs are strictly restricted to summarizing pre-computed results (`src/agents/`).
 3. **Offline Safety Net & Demo Resilience:** Hackathon Wi-Fi is unreliable. All external network requests route through universal offline safety wrappers (`safe.py`), falling back seamlessly to local disk cache (`cache/`) or pre-packaged demo fixtures (`demo_fixtures/`).
 
 ---
@@ -27,7 +27,7 @@ project/
 │   ├── acquire/            # Data collection scripts & API fetchers
 │   ├── compute/            # Deterministic scientific algorithms & physics math
 │   ├── agents/             # AI prompt templates & explanation logic
-│   └── api/                # FastAPI / Express backend endpoints
+│   └── api/                # Express backend endpoints
 └── web/                    # Offline-first React UI frontend & HUD
 ```
 ### Google AI Studio Project
