@@ -30,6 +30,9 @@ project/
 │   └── api/                # FastAPI / Express backend endpoints
 └── web/                    # Offline-first React UI frontend & HUD
 ```
+### Google AI Studio Project
+
+https://ai.studio/apps/e17a957c-9dd9-4b25-8729-f0d762b458a4
 
 ---
 
