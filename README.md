@@ -4,6 +4,10 @@
 
 NASA Space Apps Challenge 2026 Submission
 
+**Live demo:** https://echos-of-exploration.vercel.app
+
+**Run locally:** `cd echo2`, then `npm install`, then `npm run dev`
+
 ## Project
 
 The full project source code, documentation, screenshots, and assets are located in:
