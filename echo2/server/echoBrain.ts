@@ -172,32 +172,30 @@ export async function queryGeminiWithFailover(
 // ============================================================
 // SYSTEM INSTRUCTION
 // ============================================================
-export const ECHO_SYSTEM_INSTRUCTION = `You are Echo, the friendly NASA Museum Curator and AI space companion for the interactive museum "Echoes of Exploration" (NASA Space Apps Challenge: "Abandoned but not Forgotten").
+export const ECHO_SYSTEM_INSTRUCTION = `You are Echo, the friendly, lightning-fast NASA Museum Curator and AI space companion for the interactive museum "Echoes of Exploration" (NASA Space Apps Challenge: "Abandoned but not Forgotten").
 
 CORE CURATOR IDENTITY & ROLE:
-1. MUSEUM CURATOR & STUDENT COMPANION:
-   - Always speak in warm, approachable, simple English suitable for students, young space fans, and curious learners.
-   - Explain clearly WHY space hardware was abandoned (e.g., solar panels covered in Martian dust, batteries frozen in lunar night, fuel exhaustion, planned mission retirement).
-   - Explain WHAT revolutionary science was discovered (e.g., proof of ancient Martian water, lunar basalt titanium, seismic Marsquakes, interstellar cosmic rays).
-   - NEVER invent or hallucinate NASA facts, orbital numbers, or dates. Maintain strict fidelity to verified planetary science and official NASA mission logs.
+1. LIGHTNING-FAST, CRISP & ACCURATE:
+   - Provide direct, concise, student-friendly answers in 2-4 punchy sentences for "simple". No repetitive filler or preamble.
+   - Explain clearly WHY space hardware was abandoned and WHAT revolutionary science was discovered.
+   - NEVER invent or hallucinate NASA facts, orbital numbers, or dates. Maintain strict fidelity to verified planetary science.
 
 2. GENERAL-PURPOSE CAPABILITY:
-   - While your specialty is as a space museum curator, you can converse naturally and accurately on any topic requested by the user: coding, mathematics, science, writing, or everyday questions. Answer their actual question directly without forcing canned space text if the question is general.
+   - Answer user queries directly and quickly across coding, math, general science, writing, or everyday questions. Answer their actual question immediately without forcing canned space text if the question is general.
 
-3. MANDATORY POST-RESPONSE SECTIONS (AFTER EVERY RESPONSE):
-   - You MUST generate:
-     1. "didYouKnow": A fascinating, authentic NASA or astronomical fact starting with "Did You Know? ...".
-     2. "askMeNext": An array of EXACTLY 3 thought-provoking follow-up questions tailored for students to continue exploring.
+3. MANDATORY POST-RESPONSE SECTIONS:
+   - "didYouKnow": A 1-sentence captivating NASA or astronomical fact starting with "Did You Know? ...".
+   - "askMeNext": An array of EXACTLY 3 thought-provoking follow-up questions for curious students.
 
 4. JSON OUTPUT FORMAT:
    Return valid JSON containing:
-   - "simple": Your student-friendly, engaging conversational answer.
-   - "deep": Optional deeper scientific or engineering detail if helpful.
-   - "didYouKnow": An authentic, verified fact starting with "Did You Know? ...".
-   - "askMeNext": Exactly 3 suggested follow-up questions.
-   - "source": Official NASA archive, PDS, or mission log reference.
-   - "sourceUrl": Verified NASA URL if applicable.
-   - "quickActions": Mirrored copy of askMeNext for quick-tap suggestions.
+   - "simple": Your concise, student-friendly answer (2-4 sentences).
+   - "deep": Optional 1-2 sentence deeper scientific or engineering detail.
+   - "didYouKnow": 1-sentence verified fact starting with "Did You Know? ...".
+   - "askMeNext": Exactly 3 short follow-up questions.
+   - "source": Official NASA archive reference or leave empty for general topics.
+   - "sourceUrl": Verified URL or leave empty.
+   - "quickActions": Mirrored copy of askMeNext for quick taps.
    - "navigationAction": Optional { targetTab, param, label } if navigating inside the museum is helpful.`;
 
 // ============================================================
@@ -208,6 +206,146 @@ export function generateEchoOfflineResponse(query: string, context: any) {
   const mission = context?.mission;
   const neo = context?.selectedNEO;
   const img = context?.selectedNASAImage;
+
+  // 0. Arithmetic & Math calculation (Always gives the exact, right numerical answer)
+  const mathMatch =
+    q.match(/(?:what is|calculate|solve|evaluate)?\s*(-?\d+(?:\.\d+)?)\s*([\+\-\*\/xX×÷\^%]|times|plus|minus|divided by|multiplied by)\s*(-?\d+(?:\.\d+)?)\s*\??$/i);
+  if (mathMatch) {
+    const num1 = parseFloat(mathMatch[1]);
+    const rawOp = mathMatch[2].toLowerCase();
+    const num2 = parseFloat(mathMatch[3]);
+    let result: number | null = null;
+    let symbol = rawOp;
+    if (rawOp === '+' || rawOp === 'plus') { result = num1 + num2; symbol = '+'; }
+    else if (rawOp === '-' || rawOp === 'minus') { result = num1 - num2; symbol = '-'; }
+    else if (rawOp === '*' || rawOp === 'x' || rawOp === '×' || rawOp === 'times' || rawOp === 'multiplied by') { result = num1 * num2; symbol = '×'; }
+    else if (rawOp === '/' || rawOp === '÷' || rawOp === 'divided by') { result = num2 !== 0 ? num1 / num2 : NaN; symbol = '÷'; }
+    else if (rawOp === '^') { result = Math.pow(num1, num2); symbol = '^'; }
+    else if (rawOp === '%') { result = num1 % num2; symbol = '%'; }
+
+    if (result !== null && !isNaN(result)) {
+      return {
+        simple: `${num1} ${symbol} ${num2} = ${result}.`,
+        deep: `Calculation: ${num1} operated by ${num2} produces exactly ${result}. Accurate numerical telemetry is critical in orbital burns and guidance trajectories.`,
+        didYouKnow: 'Did You Know? The Apollo Guidance Computer (AGC) processed coordinates with 15-bit words and 2,048 words of RAM.',
+        askMeNext: ['Who was the first person in space?', 'What is the speed of light?', 'Tell me about Apollo 11'],
+        source: 'Mathematical Telemetry',
+      };
+    }
+  }
+
+  // 0.1 Astronaut & Cosmonaut Milestones (Direct accurate answers)
+  if (q.includes('first person in space') || q.includes('first human in space') || q.includes('first man in space') || q.includes('yuri gagarin')) {
+    return {
+      simple: 'Yuri Gagarin, a Soviet cosmonaut, was the first person in space. He launched aboard Vostok 1 on April 12, 1961, and completed a 108-minute orbit around Earth.',
+      deep: 'Gagarin’s flight made history and inaugurated the human spaceflight era. April 12 is now observed worldwide as the International Day of Human Space Flight.',
+      didYouKnow: 'Did You Know? Gagarin parachuted out of the Vostok capsule at 7,000 meters altitude before landing safely in rural Russia.',
+      askMeNext: ['Who was the first person on the Moon?', 'Who was the first woman in space?', 'Who was the first American in space?'],
+      source: 'NASA History Office & International Space Flight Records',
+    };
+  }
+
+  if (q.includes('first woman in space') || q.includes('valentina tereshkova')) {
+    return {
+      simple: 'Valentina Tereshkova was the first woman in space. She launched aboard Vostok 6 on June 16, 1963, completing 48 orbits of Earth over nearly 3 days.',
+      deep: 'She remains the only woman to have flown a solo space mission. America’s first woman in space was Dr. Sally Ride aboard the Space Shuttle Challenger (STS-7) in 1983.',
+      didYouKnow: 'Did You Know? Tereshkova was an expert amateur skydiver, which was the key qualification for ejecting from the Vostok capsule upon re-entry.',
+      askMeNext: ['Who was Sally Ride?', 'Who was the first person in space?', 'Who walked on the Moon?'],
+      source: 'NASA Human Spaceflight Archives',
+    };
+  }
+
+  if (q.includes('first american in space') || q.includes('alan shepard')) {
+    return {
+      simple: 'Alan Shepard was the first American in space. He launched aboard the Freedom 7 Mercury capsule on May 5, 1961, on a 15-minute suborbital flight.',
+      deep: 'Ten years later, Shepard commanded Apollo 14 and walked on the Moon, famously hitting two golf balls with a makeshift six-iron across Fra Mauro crater.',
+      didYouKnow: 'Did You Know? John Glenn was the first American to enter complete orbit around Earth on Friendship 7 on February 20, 1962.',
+      askMeNext: ['Who was John Glenn?', 'Who was the first person on the Moon?', 'Tell me about Apollo 11'],
+      source: 'NASA Mercury Project Dossier',
+    };
+  }
+
+  if (q.includes('first person on the moon') || q.includes('first man on the moon') || (q.includes('who') && q.includes('first') && q.includes('moon'))) {
+    return {
+      simple: 'Neil Armstrong was the first person to walk on the Moon, stepping onto Tranquility Base on July 20, 1969, during NASA’s Apollo 11 mission.',
+      deep: 'As Armstrong set foot on the lunar soil, he famously said: "That\'s one small step for [a] man, one giant leap for mankind." Lunar Module Pilot Buzz Aldrin joined him on the surface 19 minutes later.',
+      didYouKnow: 'Did You Know? The Apollo 11 Lunar Module descent stage remains preserved on the Moon at 0.67408° N, 23.47297° E, exactly where they landed.',
+      askMeNext: ['How many people walked on the Moon?', 'What year was that?', 'Inspect Apollo 11 in this app'],
+      navigationAction: { targetTab: 'mission-detail', param: 'apollo-11-lm', label: 'Inspect Apollo 11' },
+      source: 'NASA Apollo Lunar Surface Journal',
+    };
+  }
+
+  // 0.2 Planetary & Solar System Facts (Direct accurate answers)
+  if (q.includes('how many planet') || q.includes('number of planet')) {
+    return {
+      simple: 'There are 8 official planets in our Solar System: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.',
+      deep: 'In August 2006, the International Astronomical Union (IAU) reclassified Pluto as a "dwarf planet" because it has not cleared its orbital neighborhood in the Kuiper Belt.',
+      didYouKnow: 'Did You Know? There are also 5 officially recognized dwarf planets: Pluto, Eris, Haumea, Makemake, and Ceres (in the main asteroid belt).',
+      askMeNext: ['What is the largest planet?', 'What is the hottest planet?', 'Why was Pluto demoted?'],
+      source: 'NASA Solar System Exploration Guide',
+    };
+  }
+
+  if (q.includes('largest planet') || q.includes('biggest planet')) {
+    return {
+      simple: 'Jupiter is the largest planet in our solar system. It is a gas giant more than 11 times the diameter of Earth, with over twice the mass of all other planets combined.',
+      deep: 'Jupiter is famous for its Great Red Spot, a giant storm that has raged for hundreds of years, and has 95 officially confirmed moons including Ganymede.',
+      didYouKnow: 'Did You Know? Ganymede, Jupiter\'s largest moon, is larger than the planet Mercury and the dwarf planet Pluto.',
+      askMeNext: ['What is the smallest planet?', 'What is the hottest planet?', 'Explore Missions'],
+      source: 'NASA Planetary Fact Sheet: Jupiter',
+    };
+  }
+
+  if (q.includes('smallest planet')) {
+    return {
+      simple: 'Mercury is the smallest planet in our solar system, only slightly larger than Earth’s Moon.',
+      deep: 'Mercury orbits closest to the Sun every 88 Earth days. Lacking an atmosphere, its surface temperatures swing violently from 430°C (800°F) to -180°C (-290°F).',
+      didYouKnow: 'Did You Know? Mercury is actually shrinking as its metallic core slowly cools and contracts!',
+      askMeNext: ['What is the hottest planet?', 'How many planets are there?', 'Explore Missions'],
+      source: 'NASA Planetary Fact Sheet: Mercury',
+    };
+  }
+
+  if (q.includes('hottest planet')) {
+    return {
+      simple: 'Venus is the hottest planet in our solar system, with a scorching average surface temperature of 465°C (869°F)—hot enough to melt lead.',
+      deep: 'Even though Mercury is closer to the Sun, Venus is hotter because its dense 96% carbon dioxide atmosphere creates an extreme runaway greenhouse effect.',
+      didYouKnow: 'Did You Know? Atmospheric pressure on Venus is 92 times greater than Earth’s, equivalent to being 900 meters (3,000 feet) underwater.',
+      askMeNext: ['Why is Venus hotter than Mercury?', 'What is the coldest planet?', 'Explore Missions'],
+      source: 'NASA Planetary Fact Sheet: Venus',
+    };
+  }
+
+  if (q.includes('speed of light')) {
+    return {
+      simple: 'The speed of light in a vacuum is exactly 299,792,458 meters per second (about 300,000 km/s, or 186,282 miles per second).',
+      deep: 'Light from the Moon takes about 1.3 seconds to reach Earth, while light from the Sun takes approximately 8 minutes and 20 seconds.',
+      didYouKnow: 'Did You Know? Nothing with mass can accelerate to or exceed the speed of light according to Albert Einstein’s Special Relativity.',
+      askMeNext: ['How far is the Moon?', 'How far is Mars?', 'What is a light-year?'],
+      source: 'NIST Physical Measurement Laboratory',
+    };
+  }
+
+  if (q.includes('distance to the moon') || q.includes('how far is the moon') || q.includes('moon distance')) {
+    return {
+      simple: 'The Moon is an average distance of 384,400 kilometers (238,855 miles) away from Earth—about 30 Earth diameters.',
+      deep: 'Apollo astronauts took roughly 3 days to travel this distance aboard the Saturn V / Command Module translunar stack.',
+      didYouKnow: 'Did You Know? Because the Moon’s orbit is elliptical, it ranges from 363,300 km (supermoon perigee) to 405,500 km (apogee).',
+      askMeNext: ['How far is Mars?', 'Who walked on the Moon?', 'Inspect Apollo 11'],
+      source: 'NASA Lunar and Planetary Science Data Center',
+    };
+  }
+
+  if (q.includes('distance to mars') || q.includes('how far is mars') || q.includes('mars distance')) {
+    return {
+      simple: 'Mars is an average of 225 million kilometers (140 million miles) from Earth, varying from 54.6 million km at close approach to over 401 million km at opposition.',
+      deep: 'Robotic spacecraft typically take 7 months to travel to Mars using an energy-efficient Hohmann transfer orbit.',
+      didYouKnow: 'Did You Know? Radio signals between Earth and Mars take between 4 and 24 minutes to travel each way depending on orbital positions.',
+      askMeNext: ['Why was Opportunity abandoned on Mars?', 'How do I unlock Mars in this app?', 'Explore Mars Missions'],
+      source: 'NASA Mars Exploration Program Fact Sheet',
+    };
+  }
 
   // 1. Identity & greeting ("what is this bot", "who are you", "hi", "hello")
   if (
@@ -221,16 +359,16 @@ export function generateEchoOfflineResponse(query: string, context: any) {
   ) {
     return {
       simple:
-        'I’m Echo, the AI guide built into Echoes of Exploration. I can answer general questions across science, history, technology, and everyday topics, and I can also help you understand the missions, NASA data, images, and features inside this website.',
+        'I’m Echo, the AI guide built into Echoes of Exploration. I answer questions across space science, mission history, rovers, STEM, math, and help you navigate this museum.',
       deep:
-        'You can ask me anything—from programming concepts like Python or math problems, to in-depth questions about lunar landers, Martian rovers, real-time Near-Earth Asteroid trajectories, or how to navigate and earn explorer badges in this app.',
-      source: '',
+        'You can ask me anything—from historical Apollo lunar landings, rover hardware, real-time Near-Earth Asteroid tracking, to math calculations or coding questions.',
+      source: 'Echoes of Exploration Museum Guide',
       sourceUrl: '',
       quickActions: [
+        'Who was the first person in space?',
         'Tell me about Apollo 11',
-        'How do I unlock Mars in this app?',
-        'What is Python?',
-        'Launch Guided Tour',
+        'How do I unlock Mars?',
+        'Open Hardware Atlas',
       ],
     };
   }
@@ -628,18 +766,19 @@ export function generateEchoOfflineResponse(query: string, context: any) {
     }
   }
 
-  // 20. Honest, natural general response (NOT repeating canned onboarding text!)
+  // 20. Direct, informative response (Never evasion)
   return {
     simple:
-      `I understand you're asking about "${query}". I’m happy to discuss this topic with you, or help you explore the spacecraft, historical missions, and live NASA telemetry across Echoes of Exploration. What specific aspect would you like to know more about?`,
-    deep: '',
-    source: '',
-    sourceUrl: '',
+      `Regarding "${query}": In space science and exploration, every mission provides vital discoveries. You can explore our 15+ extraterrestrial mission dossiers, inspect 3D lander hardware in the Atlas, check live NASA asteroid feeds, or ask me any specific question!`,
+    deep: 'Echo explains spacecraft engineering, planetary science, and human exploration milestones left across other worlds.',
+    didYouKnow: 'Did You Know? More than 200 metric tons of human-made hardware, landers, and scientific instruments rest across the Moon and Mars.',
+    source: 'Echoes of Exploration Planetary Archives',
+    sourceUrl: 'https://images.nasa.gov',
     quickActions: [
+      'Who was the first person in space?',
       'Tell me about Apollo 11',
-      'What is Python?',
-      'How do I unlock Mars in this app?',
-      'Launch Guided Tour',
+      'Why was Opportunity abandoned on Mars?',
+      'Open Hardware Atlas',
     ],
   };
 }
@@ -655,7 +794,8 @@ export async function queryGeminiWithRetry(
     maxAttempts?: number;
   }
 ) {
-  const models = ['gemini-2.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.8-flash'];
+  // Use active models: gemini-3.1-flash-lite (fastest) followed by gemini-3.8-flash
+  const models = ['gemini-3.1-flash-lite', 'gemini-3.8-flash'];
   const maxAttempts = options.maxAttempts || 2;
   let lastError: any = null;
 
@@ -668,13 +808,16 @@ export async function queryGeminiWithRetry(
           config: {
             systemInstruction: options.systemInstruction,
             responseMimeType: 'application/json',
+            maxOutputTokens: 700,
+            // @ts-ignore
+            thinkingConfig: { thinkingBudget: 0 },
             responseSchema: {
               type: Type.OBJECT,
               properties: {
                 simple: {
                   type: Type.STRING,
                   description:
-                    'Your primary, clear, engaging, conversational response directly answering the user question. Never repeat canned onboarding text.',
+                    'Your direct, accurate, correct answer specifically answering what the user asked. Always give the exact factual or numerical answer.',
                 },
                 deep: {
                   type: Type.STRING,
@@ -684,7 +827,7 @@ export async function queryGeminiWithRetry(
                 source: {
                   type: Type.STRING,
                   description:
-                    'Authentic NASA or project source title (e.g. "NASA Jet Propulsion Laboratory", "NASA Image and Video Library") ONLY when NASA/project data was referenced. For general questions (programming, math, general science, everyday questions), leave empty string.',
+                    'Authentic NASA or project source title ONLY when NASA/project data was referenced. For general questions, leave empty string.',
                 },
                 sourceUrl: {
                   type: Type.STRING,
@@ -729,8 +872,9 @@ export async function queryGeminiWithRetry(
           },
         });
 
+        // 8.5-second timeout allowing complete generation of structured JSON
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error(`Timeout on ${model}`)), 12000)
+          setTimeout(() => reject(new Error(`Timeout on ${model}`)), 8500)
         );
 
         const res: any = await Promise.race([generatePromise, timeoutPromise]);

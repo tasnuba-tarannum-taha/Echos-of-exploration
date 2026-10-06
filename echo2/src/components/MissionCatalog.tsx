@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, Rocket, MapPin, Calendar, Clock, CheckCircle2, ChevronRight, Sparkles, Tag, Lock } from 'lucide-react';
+import { Search, Filter, Rocket, MapPin, Calendar, Clock, CheckCircle2, ChevronRight, Sparkles, Tag, Lock, ExternalLink, ShieldCheck } from 'lucide-react';
 import { MISSIONS_DATA } from '../data/missions';
 import { Destination, HardwareType, MissionStatus } from '../types';
+import { NasaSourcesSection } from './NasaSourcesSection';
 
 interface MissionCatalogProps {
   onSelectMission: (missionId: string) => void;
@@ -326,6 +327,65 @@ export const MissionCatalog: React.FC<MissionCatalogProps> = ({
                         <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </span>
                     </div>
+
+                    {/* Official NASA Sources Links */}
+                    {mission.sources && mission.sources.length > 0 && (
+                      <div className="pt-2.5 border-t border-slate-800/80 space-y-2 text-[11px] font-mono">
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400 flex items-center gap-1.5">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            <span>NASA Sources ({mission.sources.length})</span>
+                          </span>
+                          <a
+                            href={mission.officialNasaUrl || mission.sources[0].url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-[10px] font-bold tracking-wider uppercase transition-colors shadow-sm"
+                            title={`Open ${mission.sources[0].title} on NASA Website`}
+                          >
+                            <span>NASA.GOV</span>
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        </div>
+
+                        {/* Direct links to all NASA sources for this mission */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {mission.sources.map((src, srcIdx) => {
+                            const domainLabel = src.url.includes('mars.nasa.gov')
+                              ? 'Mars.NASA'
+                              : src.url.includes('jpl.nasa.gov')
+                              ? 'NASA JPL'
+                              : src.url.includes('science.nasa.gov')
+                              ? 'NASA Science'
+                              : src.url.includes('nssdc.gsfc.nasa.gov')
+                              ? 'NASA NSSDC'
+                              : src.url.includes('images.nasa.gov')
+                              ? 'NASA Images'
+                              : src.url.includes('history.nasa.gov')
+                              ? 'NASA History'
+                              : src.url.includes('ntrs.nasa.gov')
+                              ? 'NASA NTRS'
+                              : 'NASA Archive';
+
+                            return (
+                              <a
+                                key={srcIdx}
+                                href={src.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-900/90 hover:bg-cyan-950 text-slate-300 hover:text-cyan-300 border border-slate-800 hover:border-cyan-500/40 text-[10px] transition-colors"
+                                title={src.title}
+                              >
+                                <span className="text-[9px] text-cyan-400/90 font-bold">{domainLabel}</span>
+                                <ExternalLink className="w-2 h-2 text-slate-400" />
+                              </a>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -333,6 +393,23 @@ export const MissionCatalog: React.FC<MissionCatalogProps> = ({
           })}
         </div>
       )}
+
+      {/* Comprehensive Official NASA Citations & Sources Directory */}
+      <div className="pt-6">
+        <NasaSourcesSection
+          defaultOpen={false}
+          citations={MISSIONS_DATA.map((m) => ({
+            mission: m.title,
+            spacecraft: `${m.hardwareType} (${m.destination})`,
+            launchDate: m.launchDate,
+            landingDate: m.arrivalDate,
+            status: m.status,
+            dataSource: m.sources[0]?.title || 'NASA Planetary Data System (PDS) Archives',
+            imageCredit: m.images[0]?.source || 'NASA / JPL-Caltech',
+            verifiedUrl: m.officialNasaUrl || m.sources[0]?.url || 'https://www.nasa.gov',
+          }))}
+        />
+      </div>
     </div>
   );
 };

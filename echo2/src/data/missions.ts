@@ -146,10 +146,13 @@ export const MISSIONS_DATA: Mission[] = [
         caption: 'Wide view of the Apollo 11 Lunar Module descent stage resting on Mare Tranquillitatis with the deployed US flag.',
       },
     ],
+    officialNasaUrl: 'https://www.nasa.gov/mission/apollo-11/',
     sources: [
-      { title: 'NASA Apollo 11 Mission Report (SP-238)', url: 'https://www.nasa.gov/mission_pages/apollo/apollo-11.html', type: 'NASA Mission', verified: true },
-      { title: 'NASA National Space Science Data Center (NSSDC ID: 1969-059C)', url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C', type: 'Scientific Data', verified: true },
+      { title: 'NASA Official Apollo 11 Mission Overview', url: 'https://www.nasa.gov/mission/apollo-11/', type: 'NASA Mission', verified: true },
+      { title: 'NASA Solar System Exploration: Apollo 11 Details', url: 'https://science.nasa.gov/mission/apollo-11/', type: 'NASA Mission', verified: true },
+      { title: 'NASA NSSDC Master Catalog: Lunar Module Eagle (1969-059C)', url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C', type: 'Scientific Data', verified: true },
       { title: 'NASA Image and Video Library: Apollo 11 Lunar Surface', url: 'https://images.nasa.gov/details-as11-40-5903', type: 'NASA Image', verified: true },
+      { title: 'NASA Apollo Lunar Surface Journal: Tranquility Base Archive', url: 'https://history.nasa.gov/alsj/a11/a11.html', type: 'NASA Mission', verified: true },
     ],
     unlockRequirement: { level: 1 },
     didYouKnow: [
@@ -288,9 +291,13 @@ export const MISSIONS_DATA: Mission[] = [
         caption: 'Full-scale engineering model of Surveyor 3 showing its sampling arm and television camera assembly.',
       },
     ],
+    officialNasaUrl: 'https://science.nasa.gov/mission/surveyor-3/',
     sources: [
-      { title: 'Surveyor III Mission Report (JPL TR 32-1177)', url: 'https://www.jpl.nasa.gov/missions/surveyor-3', type: 'JPL Archive', verified: true },
-      { title: 'Analysis of Surveyor 3 Materials and Components Returned by Apollo 12', url: 'https://ntrs.nasa.gov/citations/19720019239', type: 'Scientific Data', verified: true },
+      { title: 'NASA Science Solar System Exploration: Surveyor 3', url: 'https://science.nasa.gov/mission/surveyor-3/', type: 'NASA Mission', verified: true },
+      { title: 'NASA JPL Surveyor 3 Mission Profile', url: 'https://www.jpl.nasa.gov/missions/surveyor-3', type: 'JPL Archive', verified: true },
+      { title: 'NASA NSSDC Master Catalog: Surveyor 3 (1967-035A)', url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1967-035A', type: 'Scientific Data', verified: true },
+      { title: 'NASA Technical Reports (NTRS): Analysis of Surveyor 3 Materials', url: 'https://ntrs.nasa.gov/citations/19720019239', type: 'Scientific Data', verified: true },
+      { title: 'NASA Image Library: Apollo 12 Examines Surveyor 3 on the Moon', url: 'https://images.nasa.gov/details-as12-48-7134', type: 'NASA Image', verified: true },
     ],
     unlockRequirement: { level: 1 },
     didYouKnow: [
@@ -429,9 +436,14 @@ export const MISSIONS_DATA: Mission[] = [
         caption: 'Astronauts Dave Scott and Jim Irwin test the rover steering stick and low-gravity suspension systems.',
       },
     ],
+    officialNasaUrl: 'https://www.nasa.gov/mission/apollo-15/',
     sources: [
-      { title: 'Lunar Roving Vehicle Operations Handbook (Boeing / MSFC)', url: 'https://www.nasa.gov/centers/marshall/history/lrv.html', type: 'NASA Mission', verified: true },
-      { title: 'Apollo 15 Preliminary Science Report (NASA SP-289)', url: 'https://www.lpi.usra.edu/lunar/missions/apollo/apollo_15/', type: 'Scientific Data', verified: true },
+      { title: 'NASA Official Apollo 15 Mission Overview', url: 'https://www.nasa.gov/mission/apollo-15/', type: 'NASA Mission', verified: true },
+      { title: 'NASA Science: Apollo 15 Lunar Exploration Profile', url: 'https://science.nasa.gov/mission/apollo-15/', type: 'NASA Mission', verified: true },
+      { title: 'NASA NSSDC Master Catalog: Apollo 15 Lunar Roving Vehicle (1971-063C)', url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1971-063C', type: 'Scientific Data', verified: true },
+      { title: 'NASA Marshall Space Flight Center: Lunar Roving Vehicle History', url: 'https://www.nasa.gov/centers/marshall/history/lrv.html', type: 'NASA Mission', verified: true },
+      { title: 'NASA Image Library: Apollo 15 Rover on Hadley Delta', url: 'https://images.nasa.gov/details-as15-88-11866', type: 'NASA Image', verified: true },
+      { title: 'NASA Apollo Lunar Surface Journal: Apollo 15 Rover Ops', url: 'https://history.nasa.gov/alsj/a15/a15.html', type: 'NASA Mission', verified: true },
     ],
     unlockRequirement: { level: 1 },
     didYouKnow: [
@@ -594,10 +606,13 @@ export const MISSIONS_DATA: Mission[] = [
         caption: 'Pancam mosaic panoramic sweep of Gusev Crater taken from the deck of the Spirit rover.',
       },
     ],
+    officialNasaUrl: 'https://mars.nasa.gov/mer/mission/overview/',
     sources: [
-      { title: 'NASA Mars Exploration Rover Mission Page (JPL)', url: 'https://mars.nasa.gov/mer/mission/overview/', type: 'JPL Archive', verified: true },
-      { title: 'Science Magazine: Hydrothermal Silica Formation at Gusev Crater', url: 'https://www.science.org/doi/10.1126/science.1155429', type: 'Scientific Data', verified: true },
-      { title: 'NASA Planetary Data System (PDS) MER-A Archive', url: 'https://pds-geosciences.wustl.edu/missions/mer/', type: 'NASA Mission', verified: true },
+      { title: 'NASA Mars Exploration Rover: Spirit Mission Overview', url: 'https://mars.nasa.gov/mer/mission/overview/', type: 'NASA Mission', verified: true },
+      { title: 'NASA JPL Mars Exploration Rover Spirit Profile', url: 'https://www.jpl.nasa.gov/missions/mars-exploration-rover-spirit-mer', type: 'JPL Archive', verified: true },
+      { title: 'NASA Science: Spirit Mars Exploration Rover', url: 'https://science.nasa.gov/mission/mer-spirit/', type: 'NASA Mission', verified: true },
+      { title: 'NASA NSSDC Master Catalog: Spirit Rover (2003-027A)', url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-027A', type: 'Scientific Data', verified: true },
+      { title: 'NASA Image Library: Spirit Panoramic Camera & Gusev Surface', url: 'https://images.nasa.gov/details-PIA05208', type: 'NASA Image', verified: true },
     ],
     unlockRequirement: { level: 2, requiredMissionId: 'apollo-11-lm' },
     didYouKnow: [
@@ -748,9 +763,13 @@ export const MISSIONS_DATA: Mission[] = [
         caption: 'Microscopic Imager and rock abrasion tool deployed against exposed sulfate bedrock on the rim of Endeavour Crater.',
       },
     ],
+    officialNasaUrl: 'https://mars.nasa.gov/mer/highlights/opportunity/',
     sources: [
-      { title: 'NASA Mars Exploration Rover Mission (JPL)', url: 'https://www.jpl.nasa.gov/missions/mars-exploration-rover-opportunity-mer', type: 'JPL Archive', verified: true },
-      { title: 'Nature: Provenance and Environment of Meridiani Planum Rocks', url: 'https://www.nature.com/articles/nature03607', type: 'Scientific Data', verified: true },
+      { title: 'NASA Mars Exploration: Opportunity 15 Years Science Legacy', url: 'https://mars.nasa.gov/mer/highlights/opportunity/', type: 'NASA Mission', verified: true },
+      { title: 'NASA JPL Mars Exploration Rover: Opportunity (MER-B)', url: 'https://www.jpl.nasa.gov/missions/mars-exploration-rover-opportunity-mer', type: 'JPL Archive', verified: true },
+      { title: 'NASA Science: Opportunity Mars Rover Legacy', url: 'https://science.nasa.gov/mission/mer-opportunity/', type: 'NASA Mission', verified: true },
+      { title: 'NASA NSSDC Master Catalog: Opportunity Rover (2003-032A)', url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-032A', type: 'Scientific Data', verified: true },
+      { title: 'NASA Image Library: Opportunity Exploration at Endeavour Crater', url: 'https://images.nasa.gov/details-PIA16918', type: 'NASA Image', verified: true },
     ],
     unlockRequirement: { level: 2, requiredMissionId: 'spirit-rover' },
     didYouKnow: [
@@ -897,9 +916,13 @@ export const MISSIONS_DATA: Mission[] = [
         caption: 'InSight UltraFlex circular solar arrays providing solar electrical power on Mars.',
       },
     ],
+    officialNasaUrl: 'https://mars.nasa.gov/insight/',
     sources: [
-      { title: 'NASA InSight Mission Overview (JPL)', url: 'https://mars.nasa.gov/insight/', type: 'JPL Archive', verified: true },
-      { title: 'Science: Seismic Detection of the Martian Core', url: 'https://www.science.org/doi/10.1126/science.abf2630', type: 'Scientific Data', verified: true },
+      { title: 'NASA Mars InSight Mission Portal', url: 'https://mars.nasa.gov/insight/', type: 'NASA Mission', verified: true },
+      { title: 'NASA JPL InSight Lander Mission Archive', url: 'https://www.jpl.nasa.gov/missions/insight', type: 'JPL Archive', verified: true },
+      { title: 'NASA Science: InSight Lander Exploration Portal', url: 'https://science.nasa.gov/mission/insight/', type: 'NASA Mission', verified: true },
+      { title: 'NASA NSSDC Master Catalog: InSight Lander (2018-042A)', url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2018-042A', type: 'Scientific Data', verified: true },
+      { title: 'NASA Image Library: InSight SEIS Seismometer on Martian Regolith', url: 'https://images.nasa.gov/details-PIA23165', type: 'NASA Image', verified: true },
     ],
     unlockRequirement: { level: 2, requiredMissionId: 'spirit-rover' },
     didYouKnow: [
@@ -1044,9 +1067,13 @@ export const MISSIONS_DATA: Mission[] = [
         caption: 'Oscillations in the interstellar plasma detected by Voyager 1’s plasma wave science instrument.',
       },
     ],
+    officialNasaUrl: 'https://voyager.jpl.nasa.gov/',
     sources: [
-      { title: 'NASA Voyager Mission (JPL)', url: 'https://voyager.jpl.nasa.gov/', type: 'JPL Archive', verified: true },
-      { title: 'Science: Voyager 1 Observations of Interstellar Plasma', url: 'https://www.science.org/doi/10.1126/science.1241681', type: 'Scientific Data', verified: true },
+      { title: 'NASA Voyager Interstellar Mission (JPL)', url: 'https://voyager.jpl.nasa.gov/', type: 'JPL Archive', verified: true },
+      { title: 'NASA Official Voyager 1 Mission Portal', url: 'https://www.nasa.gov/mission/voyager-1/', type: 'NASA Mission', verified: true },
+      { title: 'NASA Science: Voyager 1 Mission Profile', url: 'https://science.nasa.gov/mission/voyager/', type: 'NASA Mission', verified: true },
+      { title: 'NASA NSSDC Master Catalog: Voyager 1 Spacecraft (1977-084A)', url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1977-084A', type: 'Scientific Data', verified: true },
+      { title: 'NASA Image Library: Voyager 1 Jupiter Encounters & Pale Blue Dot', url: 'https://images.nasa.gov/details-PIA00014', type: 'NASA Image', verified: true },
     ],
     unlockRequirement: { level: 3, requiredMissionId: 'opportunity-rover' },
     didYouKnow: [
@@ -1178,9 +1205,13 @@ export const MISSIONS_DATA: Mission[] = [
         caption: 'Scientific trajectory chart showing Pioneer 10 path beyond Neptune and out of the Solar System.',
       },
     ],
+    officialNasaUrl: 'https://www.nasa.gov/mission/pioneer-10/',
     sources: [
-      { title: 'NASA Ames Pioneer 10 Mission Archive', url: 'https://www.nasa.gov/centers/ames/missions/archive/pioneer.html', type: 'NASA Mission', verified: true },
-      { title: 'Science: Pioneer 10 Mission to Jupiter', url: 'https://www.science.org/doi/10.1126/science.183.4122.301', type: 'Scientific Data', verified: true },
+      { title: 'NASA Official Pioneer 10 Mission Overview', url: 'https://www.nasa.gov/mission/pioneer-10/', type: 'NASA Mission', verified: true },
+      { title: 'NASA Science: Pioneer 10 In-Depth Mission Profile', url: 'https://science.nasa.gov/mission/pioneer-10/', type: 'NASA Mission', verified: true },
+      { title: 'NASA Ames Research Center Pioneer 10 Archive', url: 'https://www.nasa.gov/centers/ames/missions/archive/pioneer.html', type: 'NASA Mission', verified: true },
+      { title: 'NASA NSSDC Master Catalog: Pioneer 10 (1972-012A)', url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1972-012A', type: 'Scientific Data', verified: true },
+      { title: 'NASA Image Library: Pioneer 10 Inspection & Plaque', url: 'https://images.nasa.gov/details-ARC-1972-AC72-1493', type: 'NASA Image', verified: true },
     ],
     unlockRequirement: { level: 3, requiredMissionId: 'voyager-1' },
     didYouKnow: [
@@ -1191,6 +1222,9 @@ export const MISSIONS_DATA: Mission[] = [
 
 // Enrich with real NASA videos and verified image source metadata
 MISSIONS_DATA.forEach((m) => {
+  if (!m.officialNasaUrl && m.sources && m.sources.length > 0) {
+    m.officialNasaUrl = m.sources[0].url;
+  }
   if (VERIFIED_NASA_VIDEOS[m.id]) {
     m.video = VERIFIED_NASA_VIDEOS[m.id];
   }

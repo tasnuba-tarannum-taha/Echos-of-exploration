@@ -17,6 +17,11 @@ import {
   Globe,
   Info,
   CheckCircle2,
+  Sliders,
+  Eye,
+  EyeOff,
+  Gauge,
+  Activity,
 } from 'lucide-react';
 import { RealisticGlobe } from './RealisticGlobe';
 import { NasaSourceBadge } from './NasaSourceBadge';
@@ -24,16 +29,18 @@ import { FEATURED_EARTH_VIDEO, CURATED_EARTH_VIDEOS } from '../data/nasaEarthVid
 import { NasaEarthVideo } from '../types';
 
 interface HeroProps {
-  onBeginJourney: () => void;
   onExploreMissions: () => void;
+  onOpenHardwareAtlas: () => void;
+  onBeginJourney?: () => void;
   onScrollToArchive: () => void;
 }
 
 type EarthViewMode = 'video' | 'data' | 'live';
 
 export const Hero: React.FC<HeroProps> = ({
-  onBeginJourney,
   onExploreMissions,
+  onOpenHardwareAtlas,
+  onBeginJourney,
   onScrollToArchive,
 }) => {
   const [viewMode, setViewMode] = useState<EarthViewMode>('video');
@@ -43,6 +50,31 @@ export const Hero: React.FC<HeroProps> = ({
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const [autoplayFailed, setAutoplayFailed] = useState<boolean>(false);
   const [videoLoaded, setVideoLoaded] = useState<boolean>(false);
+  const [videoOpacity, setVideoOpacity] = useState<number>(0.7); // 0.4 = Dim, 0.7 = Balanced, 0.95 = Vivid
+  const [cinemaMode, setCinemaMode] = useState<boolean>(false);
+  const [liveIssData, setLiveIssData] = useState<{ velocity: number; altitude: number; lat: number; lng: number } | null>(null);
+
+  useEffect(() => {
+    if (viewMode !== 'live') return;
+    const fetchIss = () => {
+      fetch('/api/nasa/live/iss')
+        .then((r) => r.json())
+        .then((d) => {
+          if (d?.data) {
+            setLiveIssData({
+              velocity: Math.round(d.data.velocity || 27600),
+              altitude: Math.round(d.data.altitude || 408),
+              lat: parseFloat((d.data.latitude || 0).toFixed(2)),
+              lng: parseFloat((d.data.longitude || 0).toFixed(2)),
+            });
+          }
+        })
+        .catch(() => {});
+    };
+    fetchIss();
+    const interval = setInterval(fetchIss, 4000);
+    return () => clearInterval(interval);
+  }, [viewMode]);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const heroSectionRef = useRef<HTMLElement | null>(null);
@@ -56,7 +88,7 @@ export const Hero: React.FC<HeroProps> = ({
       ? activeVideo.streamQuality.large
       : activeVideo.streamQuality.medium;
 
-  // Background starfield animation
+  // Background starfield animation (serves as base underneath video or when video is hidden)
   useEffect(() => {
     const canvas = bgCanvasRef.current;
     if (!canvas) return;
@@ -74,7 +106,7 @@ export const Hero: React.FC<HeroProps> = ({
     };
     window.addEventListener('resize', handleResize);
 
-    const starCount = 200;
+    const starCount = 180;
     const stars: Array<{ x: number; y: number; size: number; alpha: number; speed: number }> = [];
     for (let i = 0; i < starCount; i++) {
       stars.push({
@@ -101,9 +133,9 @@ export const Hero: React.FC<HeroProps> = ({
         height * 0.45,
         width * 0.6
       );
-      grad.addColorStop(0, 'rgba(12, 35, 75, 0.3)');
-      grad.addColorStop(0.6, 'rgba(3, 7, 24, 0.15)');
-      grad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+      grad.addColorStop(0, 'rgba(12, 35, 75, 0.35)');
+      grad.addColorStop(0.6, 'rgba(3, 7, 24, 0.2)');
+      grad.addColorStop(1, 'rgba(2, 6, 23, 1)');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
 
@@ -213,373 +245,429 @@ export const Hero: React.FC<HeroProps> = ({
       ref={heroSectionRef}
       className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col justify-between overflow-hidden bg-[#020617]"
     >
-      {/* Deep Space Background Canvas */}
+      {/* Deep Space Background Canvas (base layer) */}
       <canvas
         ref={bgCanvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none z-0"
       />
 
-      {/* Atmospheric Horizon Glow */}
-      <div className="absolute top-0 right-0 w-3/5 h-full bg-gradient-to-l from-cyan-950/20 via-blue-950/10 to-transparent pointer-events-none z-0" />
+      {/* 4K NASA ORBITAL VIDEO BACKGROUND */}
+      {viewMode === 'video' && (
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          <video
+            ref={videoRef}
+            key={currentStreamUrl}
+            src={currentStreamUrl}
+            poster={activeVideo.posterUrl}
+            autoPlay
+            muted={isMuted}
+            loop
+            playsInline
+            onLoadedData={() => {
+              if (videoRef.current && videoRef.current.currentTime < 8.5 && activeVideo.id === 'earth-in-4k-expedition-65') {
+                videoRef.current.currentTime = 8.5;
+              }
+              setVideoLoaded(true);
+              setAutoplayFailed(false);
+            }}
+            onTimeUpdate={() => {
+              if (videoRef.current && videoRef.current.currentTime < 8.5 && activeVideo.id === 'earth-in-4k-expedition-65') {
+                videoRef.current.currentTime = 8.5;
+              }
+            }}
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 scale-105"
+            style={{ opacity: videoLoaded ? videoOpacity : 0 }}
+          />
 
-      {/* Main Hero Container */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 flex-1 flex flex-col lg:flex-row items-center justify-between gap-12">
-        {/* Left Column: Mission Narrative & Actions */}
-        <div className="w-full lg:w-1/2 text-left space-y-6">
-          {/* Challenge Label */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono tracking-widest uppercase shadow-[0_0_15px_rgba(6,182,212,0.15)]">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-            <span>Built for the 2026 NASA Space Apps Challenge</span>
-          </div>
+          {/* Cinematic Scrim & Contrast Gradients for 100% typography legibility */}
+          {!cinemaMode && (
+            <>
+              {/* Left Column Heavy Darkening for pristine readable text */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#020617]/95 via-[#020617]/80 to-[#020617]/35 pointer-events-none" />
+              {/* Top & Bottom blends into navbar and next section */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/70 pointer-events-none" />
+              {/* Radial subtle cyan glow */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_35%,rgba(6,182,212,0.15),transparent_65%)] pointer-events-none" />
+              {/* Scanline atmospheric texture */}
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:100%_4px] opacity-25 pointer-events-none" />
+            </>
+          )}
 
-          {/* Main Typography */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 tracking-[0.3em] uppercase">
-              <Orbit className="w-4 h-4 text-cyan-400 animate-spin" style={{ animationDuration: '18s' }} />
-              <span>Abandoned But Not Forgotten</span>
-            </div>
-
-            <h1 className="font-['Rajdhani'] font-bold text-4xl sm:text-6xl xl:text-7xl text-white tracking-wider uppercase leading-none">
-              THE MACHINES <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-amber-200">
-                WE LEFT BEHIND
-              </span>
-            </h1>
-
-            <p className="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl pt-2">
-              “Every mission ends. <span className="text-cyan-200 font-medium">The discoveries remain.</span>”
-            </p>
-
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl">
-              Journey through the robotic landers, rovers, seismometers, and deep-space probes humanity left resting on the lunar basalt, Martian sand, and interstellar vacuum.
-            </p>
-          </div>
-
-          {/* Earth View Mode Toggle */}
-          <div className="pt-2 space-y-2">
-            <div className="flex items-center gap-2 text-xs font-mono text-slate-400 tracking-wider uppercase">
-              <Layers className="w-3.5 h-3.5 text-cyan-400" />
-              <span>EARTH VIEW:</span>
-            </div>
-
-            <div className="inline-flex items-center p-1 rounded-xl bg-slate-950/80 border border-slate-800 backdrop-blur-md gap-1">
-              <button
-                id="earth-view-video-btn"
-                onClick={() => setViewMode('video')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-mono tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
-                  viewMode === 'video'
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold shadow-[0_0_15px_rgba(6,182,212,0.35)]'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Video className="w-3.5 h-3.5" />
-                <span>CINEMATIC VIDEO</span>
-              </button>
-
-              <button
-                id="earth-view-data-btn"
-                onClick={() => setViewMode('data')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-mono tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
-                  viewMode === 'data'
-                    ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-bold shadow-[0_0_15px_rgba(20,184,166,0.35)]'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Globe className="w-3.5 h-3.5" />
-                <span>NASA DATA</span>
-              </button>
-
-              <button
-                id="earth-view-live-btn"
-                onClick={() => setViewMode('live')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-mono tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
-                  viewMode === 'live'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold shadow-[0_0_15px_rgba(245,158,11,0.35)]'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Radio className="w-3.5 h-3.5 animate-pulse" />
-                <span>LIVE STREAM</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Action CTAs */}
-          <div className="pt-2 flex flex-wrap items-center gap-4">
-            <button
-              id="hero-begin-journey-btn"
-              onClick={onBeginJourney}
-              className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-sm sm:text-base tracking-wider uppercase transition-all duration-300 shadow-[0_0_30px_rgba(6,182,212,0.35)] hover:shadow-[0_0_40px_rgba(6,182,212,0.5)] flex items-center gap-3 cursor-pointer"
-            >
-              <span>Begin The Journey</span>
-              <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-1.5 transition-transform" />
-            </button>
-
-            <button
-              id="hero-explore-missions-btn"
-              onClick={onExploreMissions}
-              className="px-6 py-4 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-700/80 hover:border-cyan-500/50 text-slate-200 hover:text-white font-semibold text-sm tracking-wider uppercase transition-all flex items-center gap-2.5 cursor-pointer"
-            >
-              <Compass className="w-4 h-4 text-cyan-400" />
-              <span>Explore Missions</span>
-            </button>
-          </div>
-
-          {/* Destinations pill list */}
-          <div className="pt-2 flex items-center gap-4 text-xs font-mono text-slate-400 tracking-widest uppercase">
-            <span className="text-cyan-400">MOON</span>
-            <span className="text-slate-600">•</span>
-            <span className="text-amber-400">MARS</span>
-            <span className="text-slate-600">•</span>
-            <span className="text-indigo-400">DEEP SPACE</span>
-          </div>
+          {/* Cinema mode lighter overlay so the video shines brightly */}
+          {cinemaMode && (
+            <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/85 via-transparent to-[#020617]/40 pointer-events-none" />
+          )}
         </div>
+      )}
 
-        {/* Right Column: Hero Visual Stage */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center relative">
-          {/* 1. CINEMATIC VIDEO MODE (DEFAULT) */}
-          {viewMode === 'video' && (
-            <div className="relative w-full max-w-xl aspect-[4/3] sm:aspect-[16/11] rounded-3xl overflow-hidden border border-cyan-500/40 bg-slate-950 shadow-[0_0_50px_rgba(6,182,212,0.2)]">
-              {/* Authentic NASA Earth Video Player */}
-              <video
-                ref={videoRef}
-                key={currentStreamUrl}
-                src={currentStreamUrl}
-                poster={activeVideo.posterUrl}
-                autoPlay
-                muted={isMuted}
-                loop
-                playsInline
-                onLoadedData={() => setVideoLoaded(true)}
-                className="w-full h-full object-cover"
-              />
+      {/* Atmospheric Horizon Glow if video is disabled or in data mode */}
+      {viewMode !== 'video' && (
+        <div className="absolute top-0 right-0 w-3/5 h-full bg-gradient-to-l from-cyan-950/20 via-blue-950/10 to-transparent pointer-events-none z-0" />
+      )}
 
-              {/* Atmospheric Glow & Soft Vignette (never obscures Earth) */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 pointer-events-none" />
+      {/* Autoplay resume banner (if browser blocks unmuted/autoplay) */}
+      {autoplayFailed && viewMode === 'video' && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+          <button
+            onClick={handleManualPlay}
+            className="px-5 py-2.5 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs font-mono tracking-wider uppercase shadow-[0_0_25px_rgba(6,182,212,0.6)] flex items-center gap-2 cursor-pointer transition-transform hover:scale-105"
+          >
+            <Play className="w-4 h-4 fill-slate-950" />
+            <span>Click to Resume NASA Background Video</span>
+          </button>
+        </div>
+      )}
 
-              {/* Orbital Telemetry Perimeter Ring */}
-              <div className="absolute inset-0 rounded-3xl border border-cyan-500/20 pointer-events-none" />
+      {/* ======================================================== */}
+      {/* CINEMA IMMERSION MODE (Shows unobstructed background video) */}
+      {/* ======================================================== */}
+      {cinemaMode ? (
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 flex flex-col justify-between">
+          {/* Top Cinema HUD Bar */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 bg-slate-950/80 border border-cyan-500/40 px-3.5 py-1.5 rounded-full backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.25)]">
+              <NasaSourceBadge type="REAL NASA VIDEO" size="sm" />
+              <span className="text-xs font-mono text-cyan-300 font-medium">
+                {activeVideo.title}
+              </span>
+            </div>
 
-              {/* Fallback Overlay if Autoplay is blocked by browser policy */}
-              {autoplayFailed && (
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center z-30">
+            <button
+              onClick={() => setCinemaMode(false)}
+              className="px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-cyan-950 border border-slate-700 hover:border-cyan-500 text-slate-200 hover:text-white text-xs font-mono tracking-wider uppercase backdrop-blur-md transition-all flex items-center gap-2 cursor-pointer shadow-lg"
+            >
+              <EyeOff className="w-4 h-4 text-cyan-400" />
+              <span>Exit Cinema Mode</span>
+            </button>
+          </div>
+
+          {/* Center Space Callout */}
+          <div className="text-center my-auto py-8">
+            <div className="inline-block px-4 py-1.5 rounded-full bg-black/60 border border-cyan-500/30 backdrop-blur-md mb-3">
+              <span className="text-xs font-mono text-cyan-300 uppercase tracking-widest">
+                4K EARTH OBSERVATION • INTERNATIONAL SPACE STATION
+              </span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-['Rajdhani'] font-bold text-white uppercase tracking-wider drop-shadow-md">
+              THE BLUE PLANET IN MOTION
+            </h2>
+            <p className="text-sm sm:text-base text-slate-300 font-light max-w-xl mx-auto mt-2 drop-shadow">
+              Captured by NASA astronauts aboard Expedition 65 from 408 km above Earth.
+            </p>
+          </div>
+
+          {/* Bottom Floating Control Dock */}
+          <div className="bg-slate-950/90 border border-cyan-500/40 rounded-2xl p-4 backdrop-blur-xl shadow-[0_0_40px_rgba(6,182,212,0.25)] flex flex-wrap items-center justify-between gap-4">
+            {/* Play & Audio */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleTogglePlay}
+                className="p-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition-all font-bold cursor-pointer"
+                aria-label={isPlaying ? 'Pause video' : 'Play video'}
+              >
+                {isPlaying ? <Pause className="w-4 h-4 fill-slate-950" /> : <Play className="w-4 h-4 fill-slate-950" />}
+              </button>
+
+              <button
+                onClick={handleToggleMute}
+                className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white transition-colors cursor-pointer flex items-center gap-2"
+                aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
+              >
+                {isMuted ? (
+                  <VolumeX className="w-4 h-4 text-amber-300" />
+                ) : (
+                  <Volume2 className="w-4 h-4 text-cyan-300" />
+                )}
+                <span className="text-xs font-mono text-slate-300">{isMuted ? 'MUTED' : 'AUDIO ON'}</span>
+              </button>
+
+              <div className="hidden sm:flex items-center gap-1.5 border-l border-slate-800 pl-3">
+                {(['mobile', 'medium', 'large'] as const).map((q) => (
                   <button
-                    onClick={handleManualPlay}
-                    className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-sm tracking-wider uppercase transition-all shadow-[0_0_30px_rgba(6,182,212,0.5)] flex items-center gap-2.5 cursor-pointer"
-                  >
-                    <Play className="w-5 h-5 fill-black" />
-                    <span>PLAY EARTH FROM SPACE</span>
-                  </button>
-                  <p className="text-xs text-slate-300 font-mono mt-3">
-                    NASA International Space Station 4K Observation
-                  </p>
-                </div>
-              )}
-
-              {/* Top Badging & Source Information */}
-              <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-auto">
-                <div className="flex items-center gap-2">
-                  <NasaSourceBadge type="REAL NASA VIDEO" size="sm" />
-                </div>
-
-                <div className="flex items-center gap-1.5 bg-black/70 border border-slate-700/80 rounded-lg p-1 backdrop-blur-md">
-                  {(['mobile', 'medium', 'large'] as const).map((q) => (
-                    <button
-                      key={q}
-                      onClick={() => setSelectedQuality(q)}
-                      className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer ${
-                        selectedQuality === q
-                          ? 'bg-cyan-500 text-black font-bold'
-                          : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      {q === 'mobile' ? 'Mobile' : q === 'medium' ? '1080p' : '4K'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Bottom Telemetry & Controls Bar */}
-              <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-3 bg-black/80 border border-slate-800 rounded-xl px-3 py-2 backdrop-blur-md">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleTogglePlay}
-                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                    aria-label={isPlaying ? 'Pause' : 'Play'}
-                  >
-                    {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                  </button>
-
-                  <button
-                    onClick={handleToggleMute}
-                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer flex items-center gap-1"
-                    aria-label={isMuted ? 'Unmute' : 'Mute'}
-                  >
-                    {isMuted ? (
-                      <VolumeX className="w-3.5 h-3.5 text-amber-300" />
-                    ) : (
-                      <Volume2 className="w-3.5 h-3.5 text-cyan-300" />
-                    )}
-                    <span className="text-[10px] font-mono text-slate-300">
-                      {isMuted ? 'MUTED' : 'ON'}
-                    </span>
-                  </button>
-
-                  <div className="hidden sm:block border-l border-slate-700 pl-2">
-                    <span className="text-[10px] font-mono text-slate-400 uppercase block">
-                      SOURCE: NASA (ISS EXPEDITION 65)
-                    </span>
-                  </div>
-                </div>
-
-                <a
-                  href={activeVideo.originalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[10px] font-mono text-cyan-400 hover:text-cyan-300 tracking-wider uppercase transition-colors shrink-0"
-                >
-                  <span>VIEW ORIGINAL</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-
-              {/* Video Switcher Mini-Dock */}
-              <div className="absolute top-12 left-3 z-20 flex flex-col gap-1.5 pointer-events-auto">
-                {CURATED_EARTH_VIDEOS.slice(0, 3).map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => {
-                      setActiveVideo(v);
-                      setIsPlaying(true);
-                      setAutoplayFailed(false);
-                    }}
-                    className={`px-2 py-1 rounded text-[10px] font-mono tracking-wider text-left transition-all backdrop-blur-md cursor-pointer ${
-                      activeVideo.id === v.id
-                        ? 'bg-cyan-500/90 text-black font-bold shadow-[0_0_10px_rgba(6,182,212,0.4)]'
-                        : 'bg-black/60 text-slate-300 hover:bg-black/80 hover:text-white border border-slate-800'
+                    key={q}
+                    onClick={() => setSelectedQuality(q)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                      selectedQuality === q
+                        ? 'bg-cyan-500 text-slate-950 font-bold'
+                        : 'text-slate-400 hover:text-white bg-slate-900/60'
                     }`}
                   >
-                    {v.id === 'earth-in-4k-expedition-65'
-                      ? '4K EXPEDITION 65'
-                      : v.id === 'iss-hdev-external-survey'
-                      ? 'ISS HDEV CAMERA'
-                      : 'ORBITAL HORIZON'}
+                    {q === 'mobile' ? 'Mobile' : q === 'medium' ? '1080p' : '4K UHD'}
                   </button>
                 ))}
               </div>
             </div>
-          )}
 
-          {/* 2. NASA DATA MODE (3D Interactive WebGL Globe with Real NASA Earthdata layers) */}
-          {viewMode === 'data' && (
-            <div className="relative w-80 h-80 sm:w-96 sm:h-96 xl:w-[460px] xl:h-[460px] flex items-center justify-center">
-              {/* Orbital telemetry ring */}
-              <div
-                className="absolute inset-0 rounded-full border border-cyan-500/20 border-dashed animate-spin pointer-events-none"
-                style={{ animationDuration: '40s' }}
-              />
-              <div className="absolute -inset-4 rounded-full border border-cyan-400/10 pointer-events-none" />
+            {/* Video Selector Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              {CURATED_EARTH_VIDEOS.map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => {
+                    setActiveVideo(v);
+                    setIsPlaying(true);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono tracking-wider transition-all cursor-pointer ${
+                    activeVideo.id === v.id
+                      ? 'bg-cyan-500/90 text-slate-950 font-bold shadow-[0_0_12px_rgba(6,182,212,0.4)]'
+                      : 'bg-slate-900/80 text-slate-300 hover:text-white border border-slate-800'
+                  }`}
+                >
+                  {v.id === 'earth-in-4k-expedition-65'
+                    ? '4K EXPEDITION 65'
+                    : v.id === 'iss-hdev-external-survey'
+                    ? 'ISS HDEV CAMERA'
+                    : v.id === 'iss-orbital-horizon-ambient'
+                    ? 'ORBITAL HORIZON'
+                    : 'EARTH DAY 4K'}
+                </button>
+              ))}
+            </div>
 
-              {/* Authentic 3D WebGL Earth Globe with Real NASA Data Layer Switcher */}
-              <RealisticGlobe
-                type="earth"
-                size={460}
-                interactive={true}
-                showLayerSwitcher={true}
-                className="w-full h-full"
-              />
+            {/* Brightness Presets & Exit */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-slate-900/80 border border-slate-800 rounded-lg p-1">
+                {[
+                  { label: 'Dim', val: 0.4 },
+                  { label: 'Normal', val: 0.7 },
+                  { label: 'Vivid', val: 0.95 },
+                ].map((b) => (
+                  <button
+                    key={b.label}
+                    onClick={() => setVideoOpacity(b.val)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase transition-colors cursor-pointer ${
+                      videoOpacity === b.val ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {b.label}
+                  </button>
+                ))}
+              </div>
 
-              {/* Origin Telemetry Tag */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-[#0b1329]/95 border border-cyan-500/40 rounded-lg px-4 py-1.5 text-center backdrop-blur-md shadow-[0_0_15px_rgba(6,182,212,0.2)] pointer-events-none">
-                <div className="flex items-center justify-center gap-1.5 mb-0.5">
-                  <NasaSourceBadge type="NASA EARTHDATA" size="sm" />
-                </div>
-                <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest block">
-                  DEPARTURE POINT
+              <button
+                onClick={() => setCinemaMode(false)}
+                className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                Back to Exhibition
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ======================================================== */
+        /* STANDARD HERO VIEW (With video in background)             */
+        /* ======================================================== */
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 flex-1 flex flex-col lg:flex-row items-center justify-between gap-12">
+          {/* Left Column: Mission Narrative & Actions */}
+          <div className={`w-full ${viewMode === 'video' ? 'lg:max-w-3xl' : 'lg:w-1/2'} text-left space-y-6`}>
+            {/* Main Typography */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 tracking-[0.3em] uppercase">
+                <Orbit className="w-4 h-4 text-cyan-400 animate-spin" style={{ animationDuration: '18s' }} />
+                <span>Abandoned But Not Forgotten</span>
+              </div>
+
+              <h1 className="font-['Rajdhani'] font-bold text-4xl sm:text-6xl xl:text-7xl text-white tracking-wider uppercase leading-none drop-shadow-lg">
+                THE MACHINES <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-amber-200">
+                  WE LEFT BEHIND
                 </span>
-                <span className="text-xs font-semibold text-white tracking-wider">
-                  PLANET EARTH (1.0 AU)
-                </span>
+              </h1>
+
+              <p className="text-lg sm:text-xl text-slate-200 font-normal leading-relaxed max-w-2xl pt-2 drop-shadow">
+                “Every mission ends. <span className="text-cyan-200 font-medium">The discoveries remain.</span>”
+              </p>
+
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl drop-shadow">
+                Journey through the robotic landers, rovers, seismometers, and deep-space probes humanity left resting on the lunar basalt, Martian sand, and interstellar vacuum.
+              </p>
+            </div>
+
+            {/* Earth View Mode Toggle */}
+            <div className="pt-2 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-mono text-slate-400 tracking-wider uppercase">
+                <Layers className="w-3.5 h-3.5 text-cyan-400" />
+                <span>EARTH VIEW:</span>
+              </div>
+
+              <div className="inline-flex items-center p-1.5 rounded-2xl bg-slate-950/80 border border-slate-800 backdrop-blur-md gap-1">
+                <button
+                  id="earth-view-video-btn"
+                  onClick={() => setViewMode('video')}
+                  className={`px-4 py-2 rounded-xl text-xs font-mono tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
+                    viewMode === 'video'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold shadow-[0_0_15px_rgba(6,182,212,0.35)]'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Video className="w-3.5 h-3.5" />
+                  <span>CINEMATIC VIDEO</span>
+                </button>
+
+                <button
+                  id="earth-view-data-btn"
+                  onClick={() => setViewMode('data')}
+                  className={`px-4 py-2 rounded-xl text-xs font-mono tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
+                    viewMode === 'data'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold shadow-[0_0_15px_rgba(6,182,212,0.35)]'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  <span>NASA DATA</span>
+                </button>
+
+                <button
+                  id="earth-view-live-btn"
+                  onClick={() => setViewMode('live')}
+                  className={`px-4 py-2 rounded-xl text-xs font-mono tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
+                    viewMode === 'live'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold shadow-[0_0_15px_rgba(6,182,212,0.35)]'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Radio className="w-3.5 h-3.5" />
+                  <span>LIVE STREAM</span>
+                </button>
               </div>
             </div>
-          )}
 
-          {/* 3. LIVE STREAM MODE (ISS Live Earth Viewing Feed) */}
-          {viewMode === 'live' && (
-            <div className="relative w-full max-w-xl aspect-[4/3] sm:aspect-[16/11] rounded-3xl overflow-hidden border border-amber-500/40 bg-slate-950 shadow-[0_0_50px_rgba(245,158,11,0.2)] flex flex-col justify-between p-6">
-              {/* Header */}
-              <div className="flex items-center justify-between z-10">
-                <NasaSourceBadge type="LIVE NASA STREAM" size="sm" />
-                <span className="text-xs font-mono text-amber-300">ISS ORBIT 408 KM</span>
+            {/* Action CTAs */}
+            <div className="pt-2 flex flex-wrap items-center gap-4">
+              <button
+                id="hero-explore-missions-btn"
+                onClick={onExploreMissions}
+                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm tracking-wider uppercase transition-all duration-300 shadow-[0_0_25px_rgba(6,182,212,0.35)] hover:shadow-[0_0_35px_rgba(6,182,212,0.5)] flex items-center gap-3 cursor-pointer"
+              >
+                <span>EXPLORE MISSIONS</span>
+                <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              <button
+                id="hero-begin-hardware-atlas-btn"
+                onClick={onOpenHardwareAtlas}
+                className="px-7 py-4 rounded-2xl bg-slate-900/80 hover:bg-slate-850 border border-slate-700/80 hover:border-cyan-500/50 text-white font-bold text-sm tracking-wider uppercase transition-all flex items-center gap-2.5 cursor-pointer backdrop-blur-md hover:shadow-[0_0_20px_rgba(6,182,212,0.25)]"
+              >
+                <Globe className="w-4 h-4 text-cyan-400" />
+                <span>BEGIN HARDWARE ATLAS</span>
+              </button>
+            </div>
+
+            {/* Destinations pill list */}
+            <div className="pt-2 flex items-center gap-4 text-xs font-mono tracking-widest uppercase">
+              <span className="text-cyan-400">MOON</span>
+              <span className="text-slate-600">•</span>
+              <span className="text-amber-400">MARS</span>
+              <span className="text-slate-600">•</span>
+              <span className="text-indigo-400">DEEP SPACE</span>
+            </div>
+          </div>
+
+          {/* Right Column: Hero Visual Stage (Only displayed in 3D Data or Live Stream mode) */}
+          {viewMode !== 'video' && (
+            <div className="w-full lg:w-1/2 flex flex-col items-center justify-center relative">
+              {/* 2. NASA DATA MODE (3D Interactive WebGL Globe with Real NASA Earthdata layers) */}
+              {viewMode === 'data' && (
+                <div className="relative w-80 h-80 sm:w-96 sm:h-96 xl:w-[460px] xl:h-[460px] flex items-center justify-center">
+                {/* Orbital telemetry ring */}
+                <div
+                  className="absolute inset-0 rounded-full border border-cyan-500/20 border-dashed animate-spin pointer-events-none"
+                  style={{ animationDuration: '40s' }}
+                />
+                <div className="absolute -inset-4 rounded-full border border-cyan-400/10 pointer-events-none" />
+
+                {/* Authentic 3D WebGL Earth Globe with Real NASA Data Layer Switcher */}
+                <RealisticGlobe
+                  type="earth"
+                  size={460}
+                  interactive={true}
+                  showLayerSwitcher={true}
+                  className="w-full h-full"
+                />
+
+                {/* Origin Telemetry Tag */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-[#0b1329]/95 border border-cyan-500/40 rounded-lg px-4 py-1.5 text-center backdrop-blur-md shadow-[0_0_15px_rgba(6,182,212,0.2)] pointer-events-none">
+                  <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                    <NasaSourceBadge type="NASA EARTHDATA" size="sm" />
+                  </div>
+                  <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest block">
+                    DEPARTURE POINT
+                  </span>
+                  <span className="text-xs font-semibold text-white tracking-wider">
+                    PLANET EARTH (1.0 AU)
+                  </span>
+                </div>
               </div>
+            )}
 
-              {/* Center Live Stream Portal Information */}
-              <div className="my-auto space-y-4 text-center z-10">
-                <div className="w-16 h-16 rounded-full bg-amber-950/60 border border-amber-500/40 flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-                  <Radio className="w-8 h-8 text-amber-400 animate-pulse" />
+            {/* 3. LIVE STREAM MODE (ISS Live Earth Viewing Feed) */}
+            {viewMode === 'live' && (
+              <div className="relative w-full max-w-xl aspect-[16/10] rounded-3xl overflow-hidden border border-cyan-500/50 bg-slate-950 shadow-[0_0_50px_rgba(6,182,212,0.25)] flex flex-col justify-between">
+                {/* Header Overlay */}
+                <div className="absolute top-0 inset-x-0 p-3.5 bg-gradient-to-b from-black/90 via-black/50 to-transparent z-10 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <NasaSourceBadge type="LIVE NASA STREAM" size="sm" />
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/40 flex items-center gap-1.5 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.3)]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      LIVE NASA API
+                    </span>
+                  </div>
+                  <span className="text-xs font-mono text-cyan-300 font-medium">
+                    {liveIssData
+                      ? `${Math.abs(liveIssData.lat)}° ${liveIssData.lat >= 0 ? 'N' : 'S'}, ${Math.abs(liveIssData.lng)}° ${liveIssData.lng >= 0 ? 'E' : 'W'}`
+                      : 'ISS ORBIT 408 KM'}
+                  </span>
                 </div>
 
-                <div className="space-y-1">
-                  <h3 className="text-xl font-bold text-white font-['Rajdhani'] tracking-wide">
-                    OFFICIAL NASA ISS LIVE EARTH VIEW
-                  </h3>
-                  <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                    Live camera views from the International Space Station exterior payloads (EHDC and External Cameras). The ISS orbits Earth every 90 minutes.
-                  </p>
-                </div>
+                {/* Real Live Video Embed */}
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/P9C25Un7xaM?autoplay=1&mute=1&playsinline=1"
+                  title="NASA Live ISS Earth View"
+                  className="w-full h-full object-cover border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
 
-                {/* Telemetry Grid */}
-                <div className="grid grid-cols-3 gap-2 max-w-md mx-auto text-left text-xs font-mono bg-black/60 border border-slate-800 rounded-xl p-3">
-                  <div>
-                    <span className="text-slate-500 block text-[10px]">SPEED</span>
-                    <span className="text-white font-bold">27,600 km/h</span>
+                {/* Footer Telemetry Overlay */}
+                <div className="absolute bottom-0 inset-x-0 p-3.5 bg-gradient-to-t from-black/95 via-black/80 to-transparent z-10 flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center gap-3 sm:gap-5 text-[11px]">
+                    <div>
+                      <span className="text-slate-400 block text-[9px]">SPEED</span>
+                      <span className="text-white font-bold">
+                        {liveIssData ? `${liveIssData.velocity.toLocaleString()} km/h` : '27,580 km/h'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[9px]">ALTITUDE</span>
+                      <span className="text-amber-300 font-bold">
+                        {liveIssData ? `${liveIssData.altitude} km` : '418 km'}
+                      </span>
+                    </div>
+                    <div className="hidden sm:block">
+                      <span className="text-slate-400 block text-[9px]">ORBIT PERIOD</span>
+                      <span className="text-cyan-300 font-bold">92.68 min</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-slate-500 block text-[10px]">ALTITUDE</span>
-                    <span className="text-white font-bold">408 km</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block text-[10px]">ORBIT PERIOD</span>
-                    <span className="text-white font-bold">92.68 min</span>
-                  </div>
-                </div>
 
-                <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
                   <a
                     href="https://plus.nasa.gov/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer"
                   >
-                    <span>OPEN OFFICIAL NASA LIVE STREAM</span>
-                    <ExternalLink className="w-4 h-4" />
+                    <span>NASA+</span>
+                    <ExternalLink className="w-3 h-3" />
                   </a>
-
-                  <button
-                    onClick={() => setViewMode('video')}
-                    className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer"
-                  >
-                    <span>WATCH 4K ARCHIVE FOOTAGE</span>
-                  </button>
                 </div>
               </div>
-
-              {/* Footer Notice (honesty in live status) */}
-              <div className="pt-2 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between z-10">
-                <span className="flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5 text-amber-400" />
-                  During orbital night (approx. 45 min each 90 min), live view is dark.
-                </span>
-                <span className="text-emerald-400 font-bold">VERIFIED NASA FEED</span>
-              </div>
+            )}
             </div>
           )}
         </div>
-      </div>
+      )}
 
       {/* Bottom Scroll Indicator to Earth From Above section */}
-      <div className="relative z-10 w-full py-4 border-t border-slate-800/60 bg-[#020617]/70 flex items-center justify-center">
+      <div className="relative z-10 w-full py-4 border-t border-slate-800/60 bg-[#020617]/70 flex items-center justify-center backdrop-blur-md">
         <button
           onClick={onScrollToArchive}
           className="flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-cyan-300 tracking-widest uppercase transition-colors cursor-pointer"

@@ -188,6 +188,7 @@ export interface Mission {
   images: MissionImage[];
   video?: NasaVideo;
   sources: MissionSource[];
+  officialNasaUrl?: string;
   unlockRequirement: {
     level: number;
     requiredMissionId?: string;
@@ -295,6 +296,33 @@ export interface SolarFlareData {
   peakTime: string;
   sourceLocation?: string;
   note?: string;
+}
+
+export interface LiveIssTelemetry {
+  name: string;
+  id: number;
+  latitude: number;
+  longitude: number;
+  altitude: number;
+  velocity: number;
+  visibility: 'daylight' | 'eclipsed' | string;
+  footprint: number;
+  timestamp: number;
+  solar_lat?: number;
+  solar_lon?: number;
+  units?: string;
+}
+
+export interface LiveNasaStream {
+  id: string;
+  title: string;
+  subtitle: string;
+  embedUrl: string;
+  description: string;
+  channel: string;
+  badge: DataSourceBadge;
+  status: 'LIVE' | 'STANDBY';
+  category: 'Earth View' | 'NASA TV' | 'Deep Space';
 }
 
 export interface NasaImageItem {
@@ -418,6 +446,7 @@ export interface AtlasHardwareItem {
   landingDate: string;
   dataSource: string;
   imageCredit: string;
+  verifiedUrl?: string;
 }
 
 export interface CitationCardData {
@@ -438,7 +467,7 @@ export interface TourStep {
   targetSelector: string;
   position: 'top' | 'bottom' | 'left' | 'right' | 'center';
   action?: 'navigate' | 'scroll' | 'switchChapter' | 'switchNasaTab';
-  route: 'explore' | 'journey' | 'missions' | 'mission-detail' | 'nasa-feeds' | 'badges';
+  route: 'explore' | 'journey' | 'missions' | 'atlas' | 'mission-detail' | 'nasa-feeds' | 'badges';
   routeParam?: string;
   chapterIndex?: number;
   nasaTab?: 'apod' | 'neows' | 'donki' | 'library';

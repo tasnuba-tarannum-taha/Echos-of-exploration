@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Sparkles,
+  Zap,
   X,
   Send,
   ChevronDown,
@@ -560,9 +561,9 @@ export const EchoChat: React.FC<EchoChatProps> = ({
                   })}
 
                   {isLoading && (
-                    <div className="flex items-center gap-2 p-3 rounded-2xl bg-[#08122c] border border-slate-700/60 w-fit text-cyan-300 font-mono text-xs animate-pulse">
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-cyan-400" />
-                      <span>Echo is thinking...</span>
+                    <div className="flex items-center gap-2 p-3 rounded-2xl bg-[#08122c] border border-cyan-500/40 w-fit text-cyan-300 font-mono text-xs shadow-[0_0_15px_rgba(6,182,212,0.15)] animate-pulse">
+                      <Zap className="w-3.5 h-3.5 text-cyan-400 animate-bounce" />
+                      <span>Echo generating fast reply...</span>
                     </div>
                   )}
 

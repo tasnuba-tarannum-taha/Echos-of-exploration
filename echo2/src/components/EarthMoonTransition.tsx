@@ -333,7 +333,7 @@ export const EarthMoonTransition: React.FC<EarthMoonTransitionProps> = ({
                   <button
                     key={m.id}
                     onClick={() => setSelectedMission(m)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono uppercase transition-colors ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-mono uppercase transition-colors cursor-pointer ${
                       selectedMission.id === m.id
                         ? 'bg-cyan-950 text-cyan-300 border border-cyan-500'
                         : 'bg-slate-900/90 text-slate-400 hover:text-white'
@@ -343,6 +343,19 @@ export const EarthMoonTransition: React.FC<EarthMoonTransitionProps> = ({
                   </button>
                 ))}
               </div>
+
+              {(selectedMission.officialNasaUrl || (selectedMission.sources && selectedMission.sources[0]?.url)) && (
+                <a
+                  href={selectedMission.officialNasaUrl || selectedMission.sources[0].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 text-xs font-mono uppercase tracking-wider transition-colors ml-1 cursor-pointer"
+                  title={`Open ${selectedMission.title} on Official NASA Website`}
+                >
+                  <span>NASA Source</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
             </div>
 
             <button

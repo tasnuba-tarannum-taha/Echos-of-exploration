@@ -45,7 +45,7 @@ const COMPARISON_ITEMS: CompareItem[] = [
     currentYear: 2026,
     thenTitle: 'APRIL 1967 • FRESH ROBOTIC SCOUT',
     thenDesc: 'Bright white painted tubular frame, functioning TV scanning mirror, solar panel deployed upward toward the sun.',
-    thenImg: 'https://images-assets.nasa.gov/image/as12-48-7134/as12-48-7134~orig.jpg',
+    thenImg: 'https://images-assets.nasa.gov/image/PIA00084/PIA00084~large.jpg',
     nowTitle: '2026 • 59 YEARS RESTING IN CRATER',
     nowDesc: 'Surface discoloration confirmed by Apollo 12 astronauts; camera mirror scratched by lunar dust kicked up during landings.',
     nowImg: 'https://images-assets.nasa.gov/image/as12-48-7121/as12-48-7121~orig.jpg',

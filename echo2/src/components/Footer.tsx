@@ -31,27 +31,32 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-1.5">
               <li>
                 <button onClick={() => onNavigate('explore')} className="hover:text-cyan-300 transition-colors cursor-pointer">
-                  Destinations Hub
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('missions')} className="hover:text-cyan-300 transition-colors cursor-pointer">
-                  Hardware Archive
+                  1. Explore (Destinations Hub)
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('atlas')} className="hover:text-cyan-300 transition-colors cursor-pointer">
-                  Hardware Atlas
+                  2. Hardware Atlas
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('missions')} className="hover:text-cyan-300 transition-colors cursor-pointer">
+                  3. Missions Archive
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('nasa-feeds')} className="hover:text-cyan-300 transition-colors cursor-pointer">
-                  Live NASA Telemetry
+                  4. Live NASA Telemetry
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('journey')} className="hover:text-cyan-300 transition-colors cursor-pointer text-cyan-400 font-semibold">
+                  5. Astronaut Journey (Moon Game)
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('badges')} className="hover:text-cyan-300 transition-colors cursor-pointer">
-                  Badges & Honors
+                  6. Badges & Honors
                 </button>
               </li>
             </ul>

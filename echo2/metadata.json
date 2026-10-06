@@ -1,6 +1,6 @@
 {
-  "name": "Remix Echoes of Exploration",
-  "description": "An interactive digital museum and educational explorer for the 2026 NASA Space Apps Challenge, chronicling the forgotten hardware humanity left behind on the Moon, Mars, and deep space.",
+  "name": "Remix Remix Remix echo2",
+  "description": "Imported from GitHub",
   "requestFramePermissions": [
     "microphone"
   ],

@@ -477,7 +477,21 @@ export const HardwareAtlas: React.FC<HardwareAtlasProps> = ({
                 NASA PDS Planetary Data Registry: <span className="text-slate-300">{selectedHardware.dataSource}</span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                {selectedHardware.verifiedUrl && (
+                  <a
+                    href={selectedHardware.verifiedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 hover:text-emerald-200 text-xs font-mono uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(16,185,129,0.2)] flex items-center gap-1.5 cursor-pointer"
+                    title={`View ${selectedHardware.name} on NASA Website`}
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>NASA Website Source</span>
+                    <ExternalLink className="w-3 h-3 text-emerald-400" />
+                  </a>
+                )}
+
                 {onOpenEcho && (
                   <button
                     onClick={() => onOpenEcho(`Tell me more about ${selectedHardware.name} and what it discovered.`)}

@@ -22,6 +22,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'July 20, 1969',
     dataSource: 'NASA Apollo Lunar Surface Journal / NSSDC ID: 1969-059C',
     imageCredit: 'NASA / Neil Armstrong',
+    verifiedUrl: 'https://www.nasa.gov/mission/apollo-11/',
   },
   {
     id: 'apollo-12',
@@ -43,6 +44,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'November 19, 1969',
     dataSource: 'NASA Apollo 12 Mission Report / NSSDC ID: 1969-099C',
     imageCredit: 'NASA / Alan Bean',
+    verifiedUrl: 'https://www.nasa.gov/mission/apollo-12/',
   },
   {
     id: 'apollo-14',
@@ -64,6 +66,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'February 5, 1971',
     dataSource: 'NASA Apollo 14 Scientific Report / NSSDC ID: 1971-008C',
     imageCredit: 'NASA / Alan Shepard & Edgar Mitchell',
+    verifiedUrl: 'https://www.nasa.gov/mission/apollo-14/',
   },
   {
     id: 'apollo-15',
@@ -85,6 +88,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'July 30, 1971',
     dataSource: 'NASA Apollo 15 Preliminary Science Report / NSSDC ID: 1971-063C',
     imageCredit: 'NASA / Dave Scott & Jim Irwin',
+    verifiedUrl: 'https://www.nasa.gov/mission/apollo-15/',
   },
   {
     id: 'apollo-16',
@@ -106,6 +110,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'April 21, 1972',
     dataSource: 'NASA Apollo 16 Mission Archive / NSSDC ID: 1972-031C',
     imageCredit: 'NASA / John Young & Charlie Duke',
+    verifiedUrl: 'https://www.nasa.gov/mission/apollo-16/',
   },
   {
     id: 'apollo-17',
@@ -127,6 +132,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'December 11, 1972',
     dataSource: 'NASA Apollo 17 Science Report / NSSDC ID: 1972-096C',
     imageCredit: 'NASA / Gene Cernan & Harrison Schmitt',
+    verifiedUrl: 'https://www.nasa.gov/mission/apollo-17/',
   },
   {
     id: 'surveyor-3',
@@ -148,6 +154,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'April 20, 1967',
     dataSource: 'NASA JPL Surveyor Project Final Report / NSSDC ID: 1967-035A',
     imageCredit: 'NASA / Apollo 12 Crew',
+    verifiedUrl: 'https://science.nasa.gov/mission/surveyor-3/',
   },
   {
     id: 'lunokhod-1',
@@ -169,6 +176,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'November 17, 1970',
     dataSource: 'Lavochkin Association Archive / NASA LRO Science Team',
     imageCredit: 'Roscosmos / NASA LRO',
+    verifiedUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1970-095A',
   },
 
   // ==================== MARS HARDWARE (AUTHENTIC NASA LANDERS & ROVERS) ====================
@@ -192,6 +200,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'July 20, 1976',
     dataSource: 'NASA JPL Viking Project Archive / NSSDC ID: 1975-075C',
     imageCredit: 'NASA / JPL-Caltech',
+    verifiedUrl: 'https://science.nasa.gov/mission/viking-1/',
   },
   {
     id: 'viking-2',
@@ -213,6 +222,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'September 3, 1976',
     dataSource: 'NASA JPL Viking 2 Project Archive / NSSDC ID: 1975-083C',
     imageCredit: 'NASA / JPL',
+    verifiedUrl: 'https://science.nasa.gov/mission/viking-2/',
   },
   {
     id: 'pathfinder-sojourner',
@@ -234,6 +244,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'July 4, 1997',
     dataSource: 'NASA JPL Mars Pathfinder Project / NSSDC ID: 1996-068A',
     imageCredit: 'NASA / JPL',
+    verifiedUrl: 'https://mars.nasa.gov/mars-pathfinder/',
   },
   {
     id: 'spirit',
@@ -255,6 +266,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'January 4, 2004',
     dataSource: 'NASA JPL MER Project / PDS Geosciences Node',
     imageCredit: 'NASA / JPL-Caltech / Cornell',
+    verifiedUrl: 'https://mars.nasa.gov/mer/mission/overview/',
   },
   {
     id: 'opportunity',
@@ -276,6 +288,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'January 25, 2004',
     dataSource: 'NASA JPL Opportunity Archive / NSSDC ID: 2003-032A',
     imageCredit: 'NASA / JPL-Caltech / Cornell',
+    verifiedUrl: 'https://mars.nasa.gov/mer/highlights/opportunity/',
   },
   {
     id: 'curiosity',
@@ -297,6 +310,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'August 6, 2012',
     dataSource: 'NASA JPL Mars Science Laboratory / PDS Imaging Node',
     imageCredit: 'NASA / JPL-Caltech / MSSS',
+    verifiedUrl: 'https://mars.nasa.gov/msl/home/',
   },
   {
     id: 'perseverance',
@@ -318,6 +332,7 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'February 18, 2021',
     dataSource: 'NASA Mars 2020 Mission Archive / JPL-Caltech',
     imageCredit: 'NASA / JPL-Caltech',
+    verifiedUrl: 'https://mars.nasa.gov/mars2020/',
   },
   {
     id: 'insight',
@@ -339,5 +354,6 @@ export const ATLAS_HARDWARE_ITEMS: AtlasHardwareItem[] = [
     landingDate: 'November 26, 2018',
     dataSource: 'NASA JPL InSight Mission Archive / IPGP SEIS Data Portal',
     imageCredit: 'NASA / JPL-Caltech / CNES',
+    verifiedUrl: 'https://mars.nasa.gov/insight/',
   },
 ];

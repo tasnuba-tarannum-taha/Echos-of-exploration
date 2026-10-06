@@ -211,12 +211,12 @@ export const ChapterEvaluationQuiz: React.FC<ChapterEvaluationQuizProps> = ({
               <div className="space-y-0.5">
                 <div className="text-xs font-mono font-bold text-emerald-300 uppercase tracking-widest flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Flight Clearance Approved ({score}/10 Right)</span>
+                  <span>Passing Score Reached ({score}/10 Right) • Next Chapter Unlocked!</span>
                 </div>
                 <p className="text-xs text-slate-300">
                   {isFinalChapter
-                    ? 'All requirements satisfied! Final mission completion is now unlocked.'
-                    : `Chapter ${chapterIndex + 1} certified. Chapter ${chapterIndex + 2} is now unlocked and available.`}
+                    ? 'All flight requirements satisfied! Final mission completion is now unlocked.'
+                    : `Chapter ${chapterIndex + 1} certified (${score} of 10 correct). Chapter ${chapterIndex + 2} is unlocked and ready to open.`}
                 </p>
               </div>
             </div>
@@ -226,9 +226,10 @@ export const ChapterEvaluationQuiz: React.FC<ChapterEvaluationQuizProps> = ({
                 <button
                   type="button"
                   onClick={onNextChapter}
-                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-lg cursor-pointer animate-pulse"
                 >
-                  <span>Proceed to Chapter {chapterIndex + 2}</span>
+                  <Unlock className="w-4 h-4" />
+                  <span>Open Chapter {chapterIndex + 2} Now</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               )}

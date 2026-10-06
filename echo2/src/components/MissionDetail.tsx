@@ -460,10 +460,20 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
     setMediaMode(hasAuthenticVideo ? 'video' : 'photo');
   }, [mission.id, hasAuthenticVideo]);
 
+  const [localCompletedChapters, setLocalCompletedChapters] = useState<number[]>(completedChapters);
+
+  React.useEffect(() => {
+    setLocalCompletedChapters(completedChapters);
+  }, [completedChapters]);
+
+  const effectiveCompletedChapters = React.useMemo(() => {
+    return Array.from(new Set([...completedChapters, ...localCompletedChapters]));
+  }, [completedChapters, localCompletedChapters]);
+
   const isChapterUnlocked = (chapterIdx: number): boolean => {
     if (chapterIdx === 0) return true;
     if (isCompleted) return true;
-    return completedChapters.includes(chapterIdx - 1);
+    return effectiveCompletedChapters.includes(chapterIdx - 1);
   };
 
   const handleSelectChapter = (chapterIndex: number) => {
@@ -481,20 +491,35 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
     }
   };
 
-  const handlePassChapter = (chapterIdx: number, score: number) => {
+  const handlePassChapter = (chapterIdx: number, score: number, autoOpenNext: boolean = true) => {
+    // Immediately mark chapterIdx as cleared locally so next chapter unlocks instantly
+    setLocalCompletedChapters((prev) => Array.from(new Set([...prev, chapterIdx])));
+
     if (onCompleteChapter) {
       onCompleteChapter(mission.id, chapterIdx, score);
     }
+
+    // If score >= 5, automatically open the next chapter after brief celebratory delay
+    if (autoOpenNext && chapterIdx < 6) {
+      const nextIdx = chapterIdx + 1;
+      setTimeout(() => {
+        setActiveChapter(nextIdx);
+        if (onChapterChange) {
+          onChapterChange(nextIdx);
+        }
+        window.scrollTo({ top: 380, behavior: 'smooth' });
+      }, 1500);
+    }
   };
 
-  const allChaptersPassed = [0, 1, 2, 3, 4, 5, 6].every((idx) => completedChapters.includes(idx));
-  const canCompleteMission = isCompleted || allChaptersPassed || completedChapters.includes(6);
+  const allChaptersPassed = [0, 1, 2, 3, 4, 5, 6].every((idx) => effectiveCompletedChapters.includes(idx));
+  const canCompleteMission = isCompleted || allChaptersPassed || effectiveCompletedChapters.includes(6);
 
   const handleFinishMission = () => {
     if (!canCompleteMission && !isCompleted) {
-      const nextUnpassed = [0, 1, 2, 3, 4, 5, 6].find((idx) => !completedChapters.includes(idx)) ?? 0;
+      const nextUnpassed = [0, 1, 2, 3, 4, 5, 6].find((idx) => !effectiveCompletedChapters.includes(idx)) ?? 0;
       setLockWarningMessage(
-        `Mission Checkpoint: You must score at least 5/10 right on each chapter evaluation to unlock mission completion. You have certified ${completedChapters.length} of 7 chapters.`
+        `Mission Checkpoint: You must score at least 5/10 right on each chapter evaluation to unlock mission completion. You have certified ${effectiveCompletedChapters.length} of 7 chapters.`
       );
       setActiveChapter(nextUnpassed);
       setTimeout(() => {
@@ -517,7 +542,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <button
           onClick={onBack}
           className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-white text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer"
@@ -526,12 +551,28 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
           <span>Return to Catalog</span>
         </button>
 
-        <div className="flex items-center gap-2 text-xs font-mono text-slate-400 min-w-0">
-          <span className="text-cyan-400 shrink-0">
-            {mission.destination.toUpperCase()}
-          </span>
-          <span>/</span>
-          <span className="text-white truncate">{mission.title}</span>
+        <div className="flex items-center gap-3">
+          {mission.sources && mission.sources[0] && (
+            <a
+              href={mission.sources[0].url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/50 text-emerald-300 hover:text-emerald-200 text-xs font-mono uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(16,185,129,0.2)] cursor-pointer"
+              title={`View ${mission.sources[0].title} on NASA Website`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Official NASA Website</span>
+              <ExternalLink className="w-3 h-3 text-emerald-400" />
+            </a>
+          )}
+
+          <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400 min-w-0">
+            <span className="text-cyan-400 shrink-0">
+              {mission.destination.toUpperCase()}
+            </span>
+            <span>/</span>
+            <span className="text-white truncate">{mission.title}</span>
+          </div>
         </div>
       </div>
 
@@ -601,6 +642,47 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
                 </span>
               </div>
             </div>
+
+            {/* Direct Official NASA Website Sources Strip */}
+            {mission.sources && mission.sources.length > 0 && (
+              <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5 shrink-0">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>NASA SOURCES:</span>
+                </span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <a
+                    href={mission.officialNasaUrl || mission.sources[0].url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 hover:text-emerald-200 text-[11px] font-mono font-bold tracking-wider uppercase transition-colors shadow-sm"
+                    title="Open Primary NASA Mission Portal"
+                  >
+                    <span>NASA Portal</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                  {mission.sources.map((s, idx) => {
+                    const shortName = s.title
+                      .replace(/^NASA\s+/, '')
+                      .replace(/^Official\s+/, '')
+                      .replace(/:.*/, '');
+                    return (
+                      <a
+                        key={idx}
+                        href={s.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-900/80 hover:bg-cyan-950 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 text-[10px] font-mono uppercase tracking-wider transition-colors"
+                        title={s.title}
+                      >
+                        <span className="truncate max-w-[130px]">{shortName}</span>
+                        <ExternalLink className="w-2 h-2 text-slate-500" />
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="lg:col-span-5 flex flex-col gap-2">
@@ -695,7 +777,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
             const isActive = activeChapter === chapterIndex;
             const ChapterIcon = chapterIcons[chapterIndex];
             const isUnlocked = isChapterUnlocked(chapterIndex);
-            const isCertified = completedChapters.includes(chapterIndex);
+            const isCertified = effectiveCompletedChapters.includes(chapterIndex);
 
             return (
               <motion.button
@@ -879,12 +961,53 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
                 </p>
               </motion.div>
 
+              {/* Official NASA Source Records Spotlight */}
+              {mission.sources && mission.sources.length > 0 && (
+                <div className="bg-[#030712] border border-emerald-900/40 rounded-xl p-5 space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                        NASA Verification & Primary Sources
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-700/50 uppercase">
+                      {mission.sources.length} NASA Verified Records
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 font-mono">
+                    All mission logs, engineering specs, and telemetry are cross-referenced with official NASA Planetary Data System (PDS) archives and JPL mission operations.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
+                    {mission.sources.map((src, idx) => (
+                      <a
+                        key={idx}
+                        href={src.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-900/60 transition-all group"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <span className="text-[9px] font-mono text-cyan-400 font-bold uppercase block">
+                            {src.type}
+                          </span>
+                          <span className="text-xs font-sans text-slate-200 group-hover:text-white truncate block">
+                            {src.title}
+                          </span>
+                        </div>
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 shrink-0 transition-colors" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <ChapterEvaluationQuiz
                 missionId={mission.id}
                 missionTitle={mission.title}
                 chapterIndex={0}
                 chapterTitle={chapters[0].title}
-                isChapterCompleted={completedChapters.includes(0)}
+                isChapterCompleted={effectiveCompletedChapters.includes(0)}
                 onPassChapter={(score) => handlePassChapter(0, score)}
                 onNextChapter={() => handleSelectChapter(1)}
               />
@@ -988,7 +1111,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
                 missionTitle={mission.title}
                 chapterIndex={1}
                 chapterTitle={chapters[1].title}
-                isChapterCompleted={completedChapters.includes(1)}
+                isChapterCompleted={effectiveCompletedChapters.includes(1)}
                 onPassChapter={(score) => handlePassChapter(1, score)}
                 onNextChapter={() => handleSelectChapter(2)}
               />
@@ -1089,7 +1212,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
                 missionTitle={mission.title}
                 chapterIndex={2}
                 chapterTitle={chapters[2].title}
-                isChapterCompleted={completedChapters.includes(2)}
+                isChapterCompleted={effectiveCompletedChapters.includes(2)}
                 onPassChapter={(score) => handlePassChapter(2, score)}
                 onNextChapter={() => handleSelectChapter(3)}
               />
@@ -1168,7 +1291,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
                 missionTitle={mission.title}
                 chapterIndex={3}
                 chapterTitle={chapters[3].title}
-                isChapterCompleted={completedChapters.includes(3)}
+                isChapterCompleted={effectiveCompletedChapters.includes(3)}
                 onPassChapter={(score) => handlePassChapter(3, score)}
                 onNextChapter={() => handleSelectChapter(4)}
               />
@@ -1256,7 +1379,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
                 missionTitle={mission.title}
                 chapterIndex={4}
                 chapterTitle={chapters[4].title}
-                isChapterCompleted={completedChapters.includes(4)}
+                isChapterCompleted={effectiveCompletedChapters.includes(4)}
                 onPassChapter={(score) => handlePassChapter(4, score)}
                 onNextChapter={() => handleSelectChapter(5)}
               />
@@ -1362,7 +1485,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
                 missionTitle={mission.title}
                 chapterIndex={5}
                 chapterTitle={chapters[5].title}
-                isChapterCompleted={completedChapters.includes(5)}
+                isChapterCompleted={effectiveCompletedChapters.includes(5)}
                 onPassChapter={(score) => handlePassChapter(5, score)}
                 onNextChapter={() => handleSelectChapter(6)}
               />
@@ -1442,7 +1565,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
                 missionTitle={mission.title}
                 chapterIndex={6}
                 chapterTitle={chapters[6].title}
-                isChapterCompleted={completedChapters.includes(6)}
+                isChapterCompleted={effectiveCompletedChapters.includes(6)}
                 onPassChapter={(score) => handlePassChapter(6, score)}
                 isFinalChapter={true}
                 onCompleteMission={handleFinishMission}
@@ -1524,7 +1647,7 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
         </div>
       </section>
 
-      <section className="bg-[#030712] border border-cyan-950/80 rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl">
+      <section id="mission-sources-section" className="bg-[#030712] border border-cyan-950/80 rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl">
         <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2.5">
             <ShieldCheck className="w-5 h-5 text-emerald-400" />
@@ -1564,14 +1687,30 @@ export const MissionDetail: React.FC<MissionDetailProps> = ({
                 </h5>
               </div>
 
-              <div className="pt-2 border-t border-slate-900 flex justify-end">
+              <div className="pt-2 border-t border-slate-900 flex items-center justify-between">
+                <span className="text-[10px] font-mono text-slate-500">
+                  {source.url.includes('jpl.nasa.gov')
+                    ? 'jpl.nasa.gov'
+                    : source.url.includes('mars.nasa.gov')
+                    ? 'mars.nasa.gov'
+                    : source.url.includes('images.nasa.gov')
+                    ? 'images.nasa.gov'
+                    : source.url.includes('nssdc.gsfc.nasa.gov')
+                    ? 'nssdc.gsfc.nasa.gov'
+                    : source.url.includes('history.nasa.gov')
+                    ? 'history.nasa.gov'
+                    : source.url.includes('ntrs.nasa.gov')
+                    ? 'ntrs.nasa.gov'
+                    : 'nasa.gov'}
+                </span>
+
                 <a
                   href={source.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-mono text-cyan-400 hover:text-cyan-300 uppercase tracking-wider transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-xs font-mono text-cyan-300 hover:text-cyan-200 uppercase tracking-wider transition-colors"
                 >
-                  <span>View Original Source</span>
+                  <span>Open on NASA</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>

@@ -24,7 +24,7 @@ import { searchNASAVideos, fetchNasaAssetStreams, NormalizedNasaVideo } from '..
 
 export const EarthFromAbove: React.FC = () => {
   const [activeVideo, setActiveVideo] = useState<NasaEarthVideo>(FEATURED_EARTH_VIDEO);
-  const [selectedQuality, setSelectedQuality] = useState<'mobile' | 'medium' | 'large'>('medium');
+  const [selectedQuality, setSelectedQuality] = useState<'mobile' | 'medium' | 'large'>('large');
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const [videoProgress, setVideoProgress] = useState<number>(0);
@@ -41,12 +41,12 @@ export const EarthFromAbove: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Determine actual stream URL based on selected quality
+  // Determine actual stream URL based on selected quality (prioritize 4K)
   const currentStreamUrl =
     selectedQuality === 'mobile'
       ? activeVideo.streamQuality.mobile
-      : selectedQuality === 'large' && activeVideo.streamQuality.large
-      ? activeVideo.streamQuality.large
+      : selectedQuality === 'large'
+      ? activeVideo.streamQuality.large || activeVideo.streamQuality.orig || activeVideo.streamQuality.medium
       : activeVideo.streamQuality.medium;
 
   // Handle Play/Pause
@@ -204,9 +204,17 @@ export const EarthFromAbove: React.FC = () => {
               muted={isMuted}
               loop
               playsInline
-              onTimeUpdate={handleTimeUpdate}
+              onTimeUpdate={() => {
+                handleTimeUpdate();
+                if (videoRef.current && videoRef.current.currentTime < 8.5 && activeVideo.id === 'earth-in-4k-expedition-65') {
+                  videoRef.current.currentTime = 8.5;
+                }
+              }}
               onLoadedMetadata={() => {
                 if (videoRef.current) {
+                  if (videoRef.current.currentTime < 8.5 && activeVideo.id === 'earth-in-4k-expedition-65') {
+                    videoRef.current.currentTime = 8.5;
+                  }
                   setVideoDuration(videoRef.current.duration);
                   setIsLoadingStream(false);
                 }
@@ -377,11 +385,11 @@ export const EarthFromAbove: React.FC = () => {
             </div>
 
             <div className="space-y-2.5">
-              {CURATED_EARTH_VIDEOS.map((v) => {
+              {CURATED_EARTH_VIDEOS.map((v, idx) => {
                 const isCurrent = activeVideo.id === v.id;
                 return (
                   <button
-                    key={v.id}
+                    key={`curated-footage-${v.id}-${idx}`}
                     onClick={() => handleSelectVideo(v)}
                     className={`w-full p-3 rounded-lg border text-left transition-all flex items-start gap-3 cursor-pointer ${
                       isCurrent
@@ -485,9 +493,9 @@ export const EarthFromAbove: React.FC = () => {
                 <span className="text-[10px] font-mono text-slate-400 uppercase">
                   {searchResults.length} Results from NASA Library:
                 </span>
-                {searchResults.map((item) => (
+                {searchResults.map((item, idx) => (
                   <button
-                    key={item.nasaId}
+                    key={`search-item-${item.nasaId || ''}-${idx}`}
                     onClick={() => handlePlaySearchResult(item)}
                     className="w-full p-2 rounded-lg bg-slate-950 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/50 text-left transition-colors flex items-center gap-2.5 cursor-pointer"
                   >

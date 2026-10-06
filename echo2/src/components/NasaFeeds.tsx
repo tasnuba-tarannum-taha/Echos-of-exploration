@@ -12,7 +12,12 @@ import {
   Radio,
 } from 'lucide-react';
 import { ApodData, NeoData, SolarFlareData, NasaImageItem } from '../types';
-import { getNasaApod, getNearEarthAsteroids, getSolarFlares, searchNasaImages } from '../services/nasaApi';
+import {
+  getNasaApod,
+  getNearEarthAsteroids,
+  getSolarFlares,
+  searchNasaImages,
+} from '../services/nasaApi';
 import { NasaSourceBadge } from './NasaSourceBadge';
 import { NeoRadarCanvas } from './NeoRadarCanvas';
 
@@ -32,6 +37,7 @@ export const NasaFeeds: React.FC<NasaFeedsProps> = ({ initialTab = 'apod' }) => 
   // APOD state
   const [apod, setApod] = useState<ApodData | null>(null);
   const [apodLoading, setApodLoading] = useState<boolean>(true);
+  const [apodImgError, setApodImgError] = useState<boolean>(false);
 
   // NeoWs state
   const [neos, setNeos] = useState<NeoData[]>([]);
@@ -84,12 +90,20 @@ export const NasaFeeds: React.FC<NasaFeedsProps> = ({ initialTab = 'apod' }) => 
         const formatted: NasaImageItem[] = rawItems.map((it: any) => {
           const itemData = it.data?.[0] || it;
           const linkData = it.links?.[0] || {};
+          const photoUrl =
+            it.thumbnail ||
+            it.href ||
+            linkData.href ||
+            itemData.href ||
+            (it.nasa_id
+              ? `https://images-assets.nasa.gov/image/${it.nasa_id}/${it.nasa_id}~medium.jpg`
+              : '');
           return {
-            nasa_id: itemData.nasa_id || `NASA-${Math.random().toString(36).substring(2, 8)}`,
-            title: itemData.title || 'NASA Exploration Artifact',
-            description: itemData.description || itemData.title || '',
-            date_created: itemData.date_created || '2026-09-17',
-            href: linkData.href || it.href || 'https://images-assets.nasa.gov/image/as11-40-5875/as11-40-5875~medium.jpg',
+            nasa_id: it.nasa_id || itemData.nasa_id || `NASA-${Math.random().toString(36).substring(2, 8)}`,
+            title: it.title || itemData.title || 'NASA Exploration Artifact',
+            description: it.description || itemData.description || itemData.title || '',
+            date_created: (it.date_created || itemData.date_created || '1969-07-20').slice(0, 10),
+            href: photoUrl,
           };
         });
         setSearchResults(formatted);
@@ -126,6 +140,7 @@ export const NasaFeeds: React.FC<NasaFeedsProps> = ({ initialTab = 'apod' }) => 
       <div className="bg-[#070e22] border border-slate-800 rounded-2xl p-2 overflow-x-auto shadow-lg">
         <div className="flex items-center gap-2 min-w-[620px]">
           <button
+            id="nasa-tab-btn-apod"
             onClick={() => setActiveTab('apod')}
             className={`flex-1 py-3 px-4 rounded-xl text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'apod'
@@ -151,6 +166,7 @@ export const NasaFeeds: React.FC<NasaFeedsProps> = ({ initialTab = 'apod' }) => 
           </button>
 
           <button
+            id="nasa-tab-btn-donki"
             onClick={() => setActiveTab('donki')}
             className={`flex-1 py-3 px-4 rounded-xl text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'donki'
@@ -163,6 +179,7 @@ export const NasaFeeds: React.FC<NasaFeedsProps> = ({ initialTab = 'apod' }) => 
           </button>
 
           <button
+            id="nasa-tab-btn-library"
             onClick={() => setActiveTab('library')}
             className={`flex-1 py-3 px-4 rounded-xl text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'library'
@@ -205,11 +222,19 @@ export const NasaFeeds: React.FC<NasaFeedsProps> = ({ initialTab = 'apod' }) => 
                   />
                 ) : (
                   <img
-                    src={apod.hdurl || apod.url}
+                    src={
+                      apodImgError
+                        ? 'https://images-assets.nasa.gov/image/as12-48-7121/as12-48-7121~large.jpg'
+                        : (apod.hdurl || apod.url)
+                    }
                     alt={apod.title}
                     className="w-full h-auto object-cover max-h-[540px]"
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
+                    loading="eager"
+                    onError={() => {
+                      if (!apodImgError) {
+                        setApodImgError(true);
+                      }
+                    }}
                   />
                 )}
                 <div className="p-3 bg-black/90 flex items-center justify-between text-xs font-mono text-slate-400 border-t border-slate-800">
@@ -449,80 +474,94 @@ export const NasaFeeds: React.FC<NasaFeedsProps> = ({ initialTab = 'apod' }) => 
         <div className="bg-[#070e22] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
           <div className="space-y-3">
             <h3 className="font-['Rajdhani'] font-bold text-2xl text-white uppercase">
-              NASA IMAGE & VIDEO LIBRARY SEARCH
+              NASA IMAGE & VIDEO ARCHIVE SEARCH
             </h3>
             <p className="text-xs font-mono text-slate-400">
-              Direct access to hundreds of thousands of historical images, lunar panoramas, and mission photography.
+              Query over 140,000 public domain imagery, video, and audio assets directly from NASA Image and Video Library.
             </p>
 
-            {/* Search bar */}
-            <div className="flex gap-2 max-w-2xl">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                executeSearch(searchQuery);
+              }}
+              className="flex gap-2 max-w-xl"
+            >
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && executeSearch(searchQuery)}
-                placeholder="Search NASA archives (e.g. 'Curiosity', 'Lunar Rover', 'Voyager', 'InSight')..."
-                className="flex-1 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 font-mono outline-none focus:border-cyan-500"
+                placeholder="Search NASA archive (e.g. Apollo 11, Curiosity, Perseverance, Webb)..."
+                className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
               />
               <button
-                onClick={() => executeSearch(searchQuery)}
-                className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer"
+                type="submit"
+                disabled={searchLoading}
+                className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-800 text-white rounded-xl text-xs font-mono uppercase font-bold tracking-wider transition-colors cursor-pointer flex items-center gap-2"
               >
-                Search
+                {searchLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
+                <span>SEARCH</span>
               </button>
-            </div>
+            </form>
           </div>
 
           {searchLoading ? (
             <div className="h-64 flex items-center justify-center text-slate-400 font-mono text-xs">
               <RefreshCw className="w-5 h-5 animate-spin mr-2 text-cyan-400" />
-              SEARCHING NASA IMAGE VAULTS...
+              SEARCHING NASA MULTIMEDIA ARCHIVES...
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {searchResults.map((item) => (
+          ) : searchResults.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
+              {searchResults.slice(0, 12).map((item) => (
                 <div
                   key={item.nasa_id}
-                  className="bg-[#030712] border border-slate-800 rounded-xl overflow-hidden flex flex-col justify-between"
+                  className="bg-slate-950 rounded-xl overflow-hidden border border-slate-800/80 hover:border-cyan-500/40 transition-colors flex flex-col justify-between"
                 >
-                  <div className="w-full h-44 bg-slate-950 overflow-hidden">
+                  <div className="relative aspect-video bg-black overflow-hidden">
                     <img
-                      src={item.href}
+                      src={
+                        item.href ||
+                        (item.nasa_id ? `https://images-assets.nasa.gov/image/${item.nasa_id}/${item.nasa_id}~medium.jpg` : '')
+                      }
                       alt={item.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover transition-transform hover:scale-105"
                       loading="lazy"
-                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (item.nasa_id && !target.src.includes('~thumb')) {
+                          target.src = `https://images-assets.nasa.gov/image/${item.nasa_id}/${item.nasa_id}~thumb.jpg`;
+                        }
+                      }}
                     />
-                  </div>
-                  <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
-                    <div>
-                      <span className="text-[10px] font-mono text-cyan-400 uppercase block">
-                        {item.date_created?.substring(0, 10) || 'NASA ARCHIVE'}
-                      </span>
-                      <h4 className="font-['Rajdhani'] font-bold text-base text-white uppercase line-clamp-2 mt-0.5">
-                        {item.title}
-                      </h4>
-                      <p className="text-xs text-slate-400 line-clamp-2 mt-1">
-                        {item.description}
-                      </p>
+                    <div className="absolute top-2 left-2">
+                      <NasaSourceBadge type="NASA PHOTO" size="sm" />
                     </div>
-
-                    <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                  </div>
+                  <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono text-cyan-400 block">{item.date_created}</span>
+                      <h4 className="font-semibold text-xs text-white line-clamp-2 mt-0.5">{item.title}</h4>
+                      <p className="text-[11px] text-slate-400 line-clamp-2 mt-1">{item.description}</p>
+                    </div>
+                    <div className="pt-2 border-t border-slate-900 flex justify-between items-center text-[10px] font-mono text-slate-500">
                       <span>ID: {item.nasa_id}</span>
                       <a
-                        href={item.href}
+                        href={`https://images.nasa.gov/details-${encodeURIComponent(item.nasa_id)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1"
                       >
-                        <span>Full Resolution</span>
+                        <span>Details</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-slate-400 font-mono text-xs">
+              No results found for “{searchQuery}”. Try searching for “Apollo”, “Curiosity”, or “Hubble”.
             </div>
           )}
         </div>

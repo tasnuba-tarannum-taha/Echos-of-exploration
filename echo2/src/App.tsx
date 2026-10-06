@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Rocket, Sparkles, ArrowRight } from 'lucide-react';
 import { Navigation } from './components/Navigation';
 import { Hero } from './components/Hero';
 import { EarthFromAbove } from './components/EarthFromAbove';
 import { EarthMoonTransition } from './components/EarthMoonTransition';
+import { MoonGame } from './components/MoonGame';
+import { GalaxyCommandGame } from './components/GalaxyCommandGame';
 import { DestinationHub } from './components/DestinationHub';
 import { MissionCatalog } from './components/MissionCatalog';
 import { MissionDetail } from './components/MissionDetail';
@@ -25,6 +28,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<
     'explore' | 'journey' | 'atlas' | 'missions' | 'mission-detail' | 'nasa-feeds' | 'badges'
   >('explore');
+
+  const [journeyGameMode, setJourneyGameMode] = useState<'moon' | 'galaxy'>('moon');
 
   const [selectedMissionId, setSelectedMissionId] = useState<string>('apollo-11-descent');
   const [inTransit, setInTransit] = useState<boolean>(false);
@@ -56,6 +61,7 @@ export default function App() {
     addXp,
     unlockBadge,
     completeMission,
+    completeChapter,
     inspectHardware,
     discoverFact,
     resetProgress,
@@ -156,11 +162,11 @@ export default function App() {
     }
   };
 
-  // Begin journey warp transition
+  // Begin journey - navigate to the Apollo Moon Game
   const handleBeginJourney = () => {
-    setTransitOrigin('Earth');
-    setTransitTarget('Moon');
-    setInTransit(true);
+    audioService.playTelemetryPing();
+    setActiveTab('journey');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleTransitComplete = () => {
@@ -226,10 +232,6 @@ export default function App() {
         activeTab={activeTab}
         onSelectTab={(tab: any) => {
           audioService.playTelemetryPing();
-          if (tab === 'journey') {
-            handleBeginJourney();
-            return;
-          }
           setActiveTab(tab);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
@@ -302,7 +304,13 @@ export default function App() {
             {/* Cinematic Landing Hero */}
             <Hero
               onBeginJourney={handleBeginJourney}
+              onOpenHardwareAtlas={() => {
+                audioService.playTelemetryPing();
+                setActiveTab('atlas');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               onExploreMissions={() => {
+                audioService.playTelemetryPing();
                 setActiveTab('missions');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
@@ -330,6 +338,80 @@ export default function App() {
                 initialDestinationFilter="All"
               />
             </div>
+
+            {/* Transition Card to Stage 02: Hardware Atlas */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+              <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-blue-950/70 via-slate-900/90 to-cyan-950/70 border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)] flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="space-y-2 text-left">
+                  <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-cyan-400">
+                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                    <span>Exhibition Sequence • Next Wing (Stage 02)</span>
+                  </div>
+                  <h3 className="font-['Rajdhani'] font-bold text-2xl text-white uppercase tracking-wider">
+                    PROCEED TO HARDWARE ATLAS
+                  </h3>
+                  <p className="text-sm text-slate-300 max-w-xl">
+                    Survey global landing coordinates, inspect 3D lander models, and locate discarded probes resting across lunar craters and Martian dust.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    audioService.playTelemetryPing();
+                    setActiveTab('atlas');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs sm:text-sm font-mono uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center gap-2.5 cursor-pointer whitespace-nowrap hover:scale-105"
+                >
+                  <span>Open Hardware Atlas</span>
+                  <ArrowRight className="w-4 h-4 fill-slate-950" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'journey' && (
+          <div className="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            {/* Game Selector Switcher */}
+            <div className="flex items-center justify-center">
+              <div className="inline-flex p-1.5 rounded-2xl bg-slate-900/90 border border-cyan-500/40 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+                <button
+                  onClick={() => setJourneyGameMode('moon')}
+                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-mono uppercase tracking-wider font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    journeyGameMode === 'moon'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Rocket className="w-4 h-4" />
+                  <span>Apollo Moon Lander</span>
+                </button>
+
+                <button
+                  onClick={() => setJourneyGameMode('galaxy')}
+                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-mono uppercase tracking-wider font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    journeyGameMode === 'galaxy'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>Galaxy Command Arcade</span>
+                </button>
+              </div>
+            </div>
+
+            {journeyGameMode === 'moon' ? (
+              <MoonGame
+                onAddXp={(amount, reason) => addXp(amount, reason)}
+                onNavigateToMission={(missionId) => handleEnterMission(missionId)}
+              />
+            ) : (
+              <GalaxyCommandGame
+                onAddXp={(amount, reason) => addXp(amount, reason)}
+                onExit={() => setJourneyGameMode('moon')}
+              />
+            )}
           </div>
         )}
 
@@ -353,6 +435,7 @@ export default function App() {
               onSelectMission={handleEnterMission}
               completedMissions={progress.completedMissions}
               initialDestinationFilter={catalogDestinationFilter}
+              chaptersCompleted={progress.chaptersCompleted}
             />
           </div>
         )}
@@ -371,6 +454,10 @@ export default function App() {
               onNavigateToMission={handleEnterMission}
               initialChapter={missionDetailChapter}
               onChapterChange={(ch) => setMissionDetailChapter(ch)}
+              completedChapters={progress.chaptersCompleted[selectedMission.id] || []}
+              onCompleteChapter={(missionId, chIdx, score) => {
+                completeChapter(missionId, chIdx, score);
+              }}
               onOpenEcho={(prompt) => {
                 if (prompt) setEchoPrompt(prompt);
                 setEchoOpen(true);

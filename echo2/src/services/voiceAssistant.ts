@@ -694,7 +694,7 @@ class VoiceAssistantService {
       }
 
       utterance.pitch = 1.18; // Friendly, youthful robot companion pitch
-      utterance.rate = 0.90;  // Relaxed, deliberate mission-control cadence allowing ample time to listen
+      utterance.rate = 1.10;  // Brisk, natural conversational cadence for fast replies
 
       utterance.onstart = () => {
         if (this.currentUtterance !== utterance) return; // stale event from a replaced/stopped utterance

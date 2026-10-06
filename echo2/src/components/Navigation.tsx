@@ -51,10 +51,10 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const navItems = [
     { id: 'explore', label: 'EXPLORE', icon: Compass },
-    { id: 'journey', label: 'ASTRONAUT JOURNEY', icon: Sparkles },
     { id: 'atlas', label: 'HARDWARE ATLAS', icon: Globe },
     { id: 'missions', label: 'MISSIONS', icon: Rocket },
     { id: 'nasa-feeds', label: 'LIVE NASA', icon: Radio },
+    { id: 'journey', label: 'ASTRONAUT JOURNEY', icon: Sparkles },
     { id: 'badges', label: 'BADGES', icon: Trophy },
   ];
 
