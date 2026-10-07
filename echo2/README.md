@@ -5,6 +5,29 @@
 
 ---
 
+## 👥 Team Information
+
+**Team Name:** Team Lost_in_Space
+
+### Team Members
+
+- **Tasnuba Tarannum Taha** — Team Leader, Testing & Voice 
+- **Tamim khan shuvo** — Web Developer & Scripting
+- **Sabikun Nahar** — UI/UX Designer & Developer
+- **Sharmishta Sarker** — Video Editor
+- **Sohan Ibn Sahid** — Researcher
+- **A B M Sojibur Rahman** — Researcher
+
+---
+
+## 🎯 High-Level Summary
+
+Echoes of Exploration is an interactive educational platform developed for the NASA Space Apps Challenge 2026. Inspired by the "Abandoned but Not Forgotten" challenge, the platform helps users discover the stories of spacecraft, landers, rovers, and scientific instruments that remain on the Moon, Mars, and beyond.
+
+Through AI-powered conversations, interactive planetary maps, mission archives, NASA media resources, and gamified learning experiences, users can explore the legacy of these machines and their contributions to scientific discovery.
+
+---
+
 ## 🚀 Architectural Overview
 
 This system is built from the ground up to satisfy rigorous NASA Space Apps judging criteria:
@@ -36,7 +59,61 @@ https://ai.studio/apps/e17a957c-9dd9-4b25-8729-f0d762b458a4
 
 ---
 
+## 💡 Our Solution
+
+Echoes of Exploration transforms mission archives and NASA data into an engaging digital museum where users can:
+
+- Explore abandoned NASA hardware
+- Learn mission histories
+- Interact with an AI guide
+- View planetary maps
+- Access NASA media resources
+- Complete educational challenges
+- Discover the legacy of historic exploration missions
+
+The platform combines storytelling, AI assistance, interactive visualization, and gamification to make space exploration more engaging and accessible.
+
+---
+
 ## 🛰️ Integrated NASA Datasets & Feeds
+## ✨ Key Features
+
+### 🤖 Echo AI Companion
+
+Users can interact with Echo through text and voice conversations to learn about NASA missions, abandoned hardware, scientific discoveries, and space exploration topics. Echo can also guide users through different sections of the platform.
+
+### 🛰️ Hardware Atlas
+
+Interactive Moon and Mars maps displaying locations of historic NASA hardware, landers, rovers, and exploration equipment.
+
+### 🚀 Mission Explorer
+
+A searchable archive of historic NASA missions and abandoned equipment featuring mission histories, discoveries, and exploration records.
+
+### 📡 NASA Data Observatory
+
+Integration of NASA open data sources including APOD, NeoWs, DONKI, and NASA Image & Video Library.
+
+### 🎓 NASA Space School
+
+Quiz-based learning experience featuring XP progression, educational challenges, achievement badges, and rank advancement.
+
+
+---
+
+## 🛰️ NASA Open Data Integration
+
+The project utilizes publicly available NASA resources to provide authentic educational content and scientific information.
+
+### NASA Resources Used
+
+- Astronomy Picture of the Day (APOD)
+- Near Earth Object Web Service (NeoWs)
+- DONKI Space Weather Database
+- NASA Image and Video Library
+- NASA Mission Archives
+- 
+### How NASA Data Is Used
 
 | Dataset / API | Purpose in Application | Fallback Fixture / Cache |
 | :--- | :--- | :--- |
