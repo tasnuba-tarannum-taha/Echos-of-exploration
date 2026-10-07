@@ -11,7 +11,7 @@
 
 ### Team Members
 
-- **Tasnuba Tarannum Taha** — Team Leader, Testing & Voice 
+- **Tasnuba Tarannum Taha** — Team Leader, Testing & Voice integration 
 - **Tamim khan shuvo** — Web Developer & Scripting
 - **Sabikun Nahar** — UI/UX Designer & Developer
 - **Sharmishta Sarker** — Video Editor
